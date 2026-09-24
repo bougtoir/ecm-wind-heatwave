@@ -9,3 +9,7 @@ data/raw/*.zip
 data/interim/
 logs/*.log
 .DS_Store
+data/raw/
+data/interim/
+logs/
+*.osm.pbf

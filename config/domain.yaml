@@ -8,7 +8,7 @@ domain:
 
 period:
   start: "2000-01-01"
-  end: "2024-12-31"
+  end: "2021-12-31"          # bounded by ARCO-ERA5 store coverage (ar store ends 2021-12-31; co store ends 2021-08 -> hydro vars truncated then)
   heatwave_season_months: [5, 6, 7, 8, 9]   # MJJAS
   baseline_climatology: ["2000-01-01", "2019-12-31"]
 
