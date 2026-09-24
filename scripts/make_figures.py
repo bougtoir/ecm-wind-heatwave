@@ -117,7 +117,7 @@ ax.set_title("(f) Falsification battery")
 save(fig, "fig7_falsification")
 
 # ---- F8: WERR ----
-w9 = pd.read_csv(R / "phase9_werr_summary.csv")
+w9 = pd.read_csv(R / "werr_country_summary.csv")
 fig, ax = plt.subplots(figsize=(6.5, 3.4))
 g = w9[w9.country != "ALL"]
 y = np.arange(len(g))
