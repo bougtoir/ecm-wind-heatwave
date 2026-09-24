@@ -1,0 +1,17 @@
+key,doi,year,journal,title,verified_via,verified_at_utc,role
+zhou2012,10.1038/nclimate1505,2012,Nature Climate Change,Impacts of wind farms on land surface temperature,Crossref API,2026-09-24,A/B observational LST
+zhou2015,10.3390/s150714981,2015,Sensors,Observed Thermal Impacts of Wind Farms Over Northern Illinois,Crossref API,2026-09-24,B observational
+fitch2012,10.1175/mwr-d-11-00352.1,2012,Monthly Weather Review,Local and Mesoscale Impacts of Wind Farms as Parameterized in a Mesoscale NWP Model,Crossref API,2026-09-24,A WRF WFP momentum sink
+fitch2013,10.1175/jcli-d-12-00376.1,2013,Journal of Climate,Parameterization of Wind Farms in Climate Models,Crossref API,2026-09-24,A climate-model WFP
+vautard2014,10.1038/ncomms4196,2014,Nature Communications,Regional climate model simulations indicate limited climatic impacts by operational and planned European wind farms,Crossref API,2026-09-24,A/B European RCM limited impacts
+millerkeith2018,10.1016/j.joule.2018.09.009,2018,Joule,Climatic Impacts of Wind Power,Crossref API,2026-09-24,B idealized continental warming
+wangprinn2010,10.5194/acp-10-2053-2010,2010,Atmospheric Chemistry and Physics,Potential climatic impacts and reliability of very large-scale wind farms,Crossref API,2026-09-24,A/B GCM large-scale extraction
+siedersleben2018,10.1088/1748-9326/aaea0b,2018,Environmental Research Letters,Micrometeorological impacts of offshore wind farms as seen in observations and simulations,Crossref API,2026-09-24,A obs+sim offshore
+alfahel2020,10.1007/s42865-020-00012-7,2020,Bulletin of Atmospheric Science and Technology,Observed onshore precipitation changes after the installation of offshore wind farms,Crossref API,2026-09-24,A/C observed onshore precip after offshore build
+qian2022,10.1088/1748-9326/ac49ba,2022,Environmental Research Letters,Impacts of 319 wind farms on surface temperature and vegetation in the United States,Crossref API,2026-09-24,B observational
+lee2022,10.1175/mwr-d-22-0118.1,2022,Monthly Weather Review,Evaluation of the Fitch Wind-Farm Wake Parameterization with Large-Eddy Simulations of Wakes Using the WRF Model,Crossref API,2026-09-24,A WFP evaluation
+fischereit2023,10.5194/gmd-2023-63,2023,Geoscientific Model Development (preprint),Modelling wind farm effects in HARMONIE-AROME (cycle 43.2.2) part 1: Implementation and evaluation,Crossref API,2026-09-24,A NWP WFP Europe
+brog2024,10.1016/j.apenergy.2024.123387,2024,Applied Energy,Future electricity demand for Europe: Unraveling the dynamics of the Temperature Response Function,Crossref API,2026-09-24,C demand-temperature modeling
+southbight2026,10.1088/1742-6596/3224/2/022033,2026,Journal of Physics: Conference Series,Precipitation response to wind farms represented in WRF over the Southern Bight of the North Sea,Crossref API,2026-09-24,A WRF precip Southern Bight
+nwshelf2026,10.1038/s43247-026-03852-x,2026,Communications Earth & Environment,Projected impacts of future offshore wind farms on coastal precipitation over the Northwest European shelf,Crossref API,2026-09-24,A/B NW European shelf precip scenarios
+solarrebound2026,10.1038/s41560-026-02026-5,2026,Nature Energy,Why Europe's solar rollout must account for the solar rebound effect,Crossref API,2026-09-24,D rebound terminology boundary

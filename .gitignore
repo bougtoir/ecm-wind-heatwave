@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+data/raw/*.zarr
+data/raw/*.nc
+data/raw/*.grib
+data/raw/*.parquet
+data/raw/*.zip
+data/interim/
+logs/*.log
+.DS_Store

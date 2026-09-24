@@ -1,0 +1,61 @@
+# Study configuration — single source of truth for analytical choices.
+
+domain:
+  name: Europe
+  lat: [35.0, 72.0]
+  lon: [-15.0, 35.0]
+  grid_res_deg: 0.25          # ERA5 native
+
+period:
+  start: "2000-01-01"
+  end: "2024-12-31"
+  heatwave_season_months: [5, 6, 7, 8, 9]   # MJJAS
+  baseline_climatology: ["2000-01-01", "2019-12-31"]
+
+random_seed: 20260924
+
+# Predefined moisture-transport transects (ocean -> continent pathways).
+# Endpoints are [lon, lat] polyline vertices. Normal direction: toward continent.
+transects:
+  northsea_to_lowcountries:
+    vertices: [[-2.0, 51.5], [3.0, 52.0], [6.0, 52.5]]
+    label: "North Sea -> NL/BE"
+  northsea_to_denmark_germany:
+    vertices: [[3.0, 55.0], [6.0, 55.5], [9.0, 54.5]]
+    label: "North Sea -> DK/DE"
+  atlantic_to_france:
+    vertices: [[-5.0, 43.5], [-1.0, 45.5], [2.0, 47.0]]
+    label: "Atlantic -> France"
+  atlantic_to_iberia:
+    vertices: [[-10.5, 38.5], [-8.0, 40.5], [-4.5, 41.5]]
+    label: "Atlantic -> Iberia"
+  uk_offshore_to_continent:
+    vertices: [[-1.0, 53.5], [2.5, 53.5], [5.5, 53.0]]
+    label: "UK offshore -> continent"
+
+heatwave:
+  primary: "pct95_tmax_3day"   # Tmax > local 95th percentile (baseline climatology), >=3 consecutive days
+  sensitivities:
+    - "pct90_tmax_3day"
+    - "abs_35C_2day"
+    - "pct95_tmean_3day"
+    - "pct95_heatindex_3day"   # apparent-temperature variant (Steadman)
+  cumulative_anomaly_metric: "sum(Tmax - Tmax_clim) over event days"
+  min_gap_days_between_events: 5
+
+exposure:
+  primary_kernel:
+    name: "WFI"              # Wind-Flow Interception index
+    formula: "WFI(x,t) = sum_i Capacity_i(t) * DirWeight_i(x) * DistDecay_i(x)"
+    direction_weight: "cos(theta_i - theta_flow)+ clipped to [0,1]"  # + = upwind
+    distance_decay_km: 100   # exponential scale
+    capacity_units: "MW"
+  alternative_kernels:       # sensitivity only, never significance tuning
+    - "MW_per_km2_100km_radius"
+    - "rotor_swept_area_density_100km"
+    - "unweighted_cumulative_upstream_capacity"
+
+inference:
+  se: "spatial-HAC (Conley, cutoff 250km) + circular block bootstrap (block=14d, B=1000)"
+  randomization_permutations: 2000
+  multiplicity: "Benjamini-Hochberg FDR q=0.05 within each hypothesis family"
