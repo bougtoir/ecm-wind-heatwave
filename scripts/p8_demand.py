@@ -20,8 +20,10 @@ P = pathlib.Path("data/processed"); R = pathlib.Path("results"); R.mkdir(exist_o
 cfg = yaml.safe_load(open("config/domain.yaml"))
 
 opsd = pd.read_csv("data/raw/electricity/opsd_time_series_60min_2020.csv",
-                   parse_dates=[0], index_col=0)
-opsd.index = pd.to_datetime(opsd.index, utc=True)
+                   usecols=lambda c: c == "utc_timestamp" or "load_actual" in c
+                   or "generation_actual" in c, low_memory=False)
+opsd["utc_timestamp"] = pd.to_datetime(opsd["utc_timestamp"], utc=True)
+opsd = opsd.set_index("utc_timestamp")
 load_cols = {c.split("_")[0]: c for c in opsd.columns
              if c.endswith("_load_actual_entsoe_transparency")}
 print("countries:", list(load_cols))
@@ -37,12 +39,17 @@ CBOX = {"DE": (47.0, 5.5, 55.2, 15.5), "FR": (42.3, -4.8, 51.1, 8.2),
         "PT": (36.8, -9.5, 42.2, -6.2), "CZ": (48.6, 12.1, 51.1, 18.9),
         "AT": (46.4, 9.5, 49.0, 17.2), "CH": (45.8, 6.0, 47.8, 10.5)}
 
+import sys
+sys.path.insert(0, "scripts")
+from grid_utils import canon
+
 surf = xr.open_mfdataset(sorted(pathlib.Path("data/raw/era5").glob("surf_daily_*.nc")),
                          combine="by_coords")
-lat, lon = surf.latitude.values, surf.longitude.values
+tmx = canon(surf["tmax"]).load()
+lat, lon = tmx.latitude.values, tmx.longitude.values
 lat2, lon2 = np.meshgrid(lat, lon, indexing="ij")
-tt = pd.DatetimeIndex(surf.time.values)
-tmax = surf["tmax"].values
+tt = pd.DatetimeIndex(tmx.time.values)
+tmax = tmx.values
 
 # daily country Tmax (grid mean over box)
 ct = {}

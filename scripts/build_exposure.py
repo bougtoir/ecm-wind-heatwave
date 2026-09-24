@@ -23,13 +23,21 @@ OUT = pathlib.Path("data/processed"); OUT.mkdir(parents=True, exist_ok=True)
 ERA = pathlib.Path("data/raw/era5")
 cfg = yaml.safe_load(open("config/domain.yaml"))
 
-tb = pd.read_csv(OUT.parents[0] / "data/processed/turbines.csv")
+tb = pd.read_csv(OUT / "turbines.csv")
 tb["year"] = pd.to_datetime(tb["commissioning"], errors="coerce").dt.year
+# capacity imputation for missing values: country median, else global median
+med_cc = tb.groupby("country").capacity_mw.transform("median")
+tb["capacity_mw"] = tb.capacity_mw.fillna(med_cc).fillna(tb.capacity_mw.median())
 print("turbines", len(tb), "| with year:", tb.year.notna().sum())
 
+import sys
+sys.path.insert(0, "scripts")
+from grid_utils import canon
+
 surf = xr.open_mfdataset(sorted(ERA.glob("surf_daily_*.nc")), combine="by_coords")
-lat, lon = surf.latitude.values, surf.longitude.values
-times = pd.DatetimeIndex(surf.time.values)
+_u10, _v10 = canon(surf["u10"]).load(), canon(surf["v10"]).load()
+lat, lon = _u10.latitude.values, _u10.longitude.values
+times = pd.DatetimeIndex(_u10.time.values)
 lat2, lon2 = np.meshgrid(lat, lon, indexing="ij")
 YEARS = range(2000, 2022)
 
@@ -38,14 +46,21 @@ grid_pts = np.c_[lat2.ravel(), lon2.ravel()]
 tree = cKDTree(grid_pts)
 dated = tb.dropna(subset=["year"]).copy()
 dated["year"] = dated["year"].astype(int)
+# static background: undated OSM turbines (commissioning unknown)
+undated = tb[tb.year.isna() & (tb.source == "osm")]
+static = np.zeros(len(grid_pts))
+if len(undated):
+    _, ii = tree.query(np.c_[undated.lat, undated.lon])
+    np.add.at(static, ii, undated.capacity_mw.values)
+static = static.reshape(lat2.shape)
 cap = {}
 for y in YEARS:
-    act = dated[(dated.year <= y) & (dated.capacity_mw.fillna(0) > 0)]
+    act = dated[(dated.year <= y) & (dated.capacity_mw > 0)]
     d = np.zeros(len(grid_pts))
     if len(act):
         _, ii = tree.query(np.c_[act.lat, act.lon])
         np.add.at(d, ii, act.capacity_mw.values)
-    cap[y] = d.reshape(lat2.shape)
+    cap[y] = d.reshape(lat2.shape) + static   # + background layer
     da = xr.DataArray(cap[y], dims=("lat", "lon"), coords={"lat": lat, "lon": lon})
     da.to_netcdf(OUT / f"capdensity_{y}.nc")
 # annual table (needs country mapping - use nearest-country of turbine's own cc col)
@@ -55,8 +70,8 @@ ann.to_csv(OUT / "capacity_annual.csv")
 print("capacity_annual done")
 
 # ---- daily WFI ----
-u10 = surf["u10"].values  # (time,lat,lon) m/s
-v10 = surf["v10"].values
+u10 = _u10.values  # (time,lat,lon) m/s
+v10 = _v10.values
 nt = len(times)
 nlat, nlon = len(lat), len(lon)
 KM_DEG_LAT = 110.57

@@ -72,9 +72,11 @@ months_expected = [(y, m) for y in range(2000, 2022) for m in range(5, 10)]
 if led.exists():
     ledger = json.loads(led.read_text())
     got = {r["file"] for r in ledger}
+    on_disk = {p.name for p in era.glob("*_daily_*.nc")}
     missing = [f"surf_daily_{y}{m:02d}.nc" for y, m in months_expected
-               if f"surf_daily_{y}{m:02d}.nc" not in got]
-    check("era5_complete", not missing, f"{len(got)} files, missing: {missing[:6]}")
+               if f"surf_daily_{y}{m:02d}.nc" not in on_disk]
+    check("era5_complete", not missing,
+          f"{len(on_disk)} on disk / {len(got)} ledger, missing: {missing[:6]}")
     for kind in ("surf", "qflux", "hydro"):
         files = sorted(era.glob(f"{kind}_daily_*.nc"))
         if files:
@@ -95,8 +97,8 @@ if led.exists():
     qf = sorted(era.glob("qflux_daily_*.nc"))
     if qf:
         ds = xr.open_dataset(qf[len(qf) // 2])
-        check("era5_qflux_range", float(ds.qx.abs().max()) < 3000,
-              f"qx max {float(ds.qx.abs().max()):.0f} kg/m/s")
+        qmax = float(np.abs(ds.qx.values).max())
+        check("era5_qflux_range", qmax < 3000, f"qx max {qmax:.0f} kg/m/s")
         ds.close()
 
 n_fail = sum(not c["ok"] for c in report["checks"])

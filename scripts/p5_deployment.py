@@ -27,9 +27,13 @@ cfg = yaml.safe_load(open("config/domain.yaml"))
 wfi = xr.open_dataset(P / "wfi_grid_daily.nc")["wfi"]
 msk = xr.open_dataset(P / "heatwave_mask_daily.nc")["pct95_tmax_3day"]
 mfc = xr.open_dataset(P / "mfc_daily.nc")["mfc"]
+import sys
+sys.path.insert(0, "scripts")
+from grid_utils import canon
+
 surf = xr.open_mfdataset(sorted(pathlib.Path("data/raw/era5").glob("surf_daily_*.nc")),
                          combine="by_coords")
-tmax = surf["tmax"]
+tmax = canon(surf["tmax"]).load()
 
 lat, lon = wfi.lat.values, wfi.lon.values
 times = pd.DatetimeIndex(wfi.time.values)

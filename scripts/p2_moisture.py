@@ -20,11 +20,15 @@ cfg = yaml.safe_load(open("config/domain.yaml"))
 R = 6371000.0
 DEG = np.pi / 180.0
 
+import sys
+sys.path.insert(0, "scripts")
+from grid_utils import canon
+
 files = sorted(ERA.glob("qflux_daily_*.nc"))
 print(len(files), "qflux files")
 ds = xr.open_mfdataset(files, combine="by_coords", parallel=False)
-qx, qy = ds["qx"], ds["qy"]
-lat, lon = ds.latitude.values, ds.longitude.values
+qx, qy = canon(ds["qx"]), canon(ds["qy"])
+lat, lon = qx.latitude.values, qx.longitude.values
 
 # --- MFC: -div Q, central differences on sphere (edges: one-sided) ---
 dlon = np.gradient(lon) * DEG           # (nlon,)
@@ -33,8 +37,10 @@ coslat = np.cos(lat * DEG)              # (nlat,)
 dqv_dlon = np.gradient(qx.values, axis=2) / dlon[None, None, :]          # dQx/dλ
 dqv_dlat = np.gradient(qy.values, axis=1) / dlat[None, :, None]          # dQy/dφ
 mfc = -(dqv_dlon / (R * coslat[None, :, None]) + dqv_dlat / R)           # kg m-2 s-1
-ds["mfc"] = xr.DataArray(mfc, dims=("time", "latitude", "longitude"),
-                         coords=ds.coords)
+z5, t8 = canon(ds["z500"]), canon(ds["t850"])
+ds = xr.Dataset({"mfc": xr.DataArray(mfc, dims=("time", "latitude", "longitude"),
+                                     coords=qx.coords),
+                 "qx": qx, "qy": qy, "z500": z5, "t850": t8})
 ds["mfc"].attrs.update(units="kg m-2 s-1", long_name="moisture flux convergence -div(Q)")
 out = ds[["mfc", "qx", "qy", "z500", "t850"]]
 enc = {v: {"zlib": True, "complevel": 4, "dtype": "float32"} for v in out.data_vars}

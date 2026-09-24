@@ -6,6 +6,7 @@ offshore (bool), rotor_diameter_m, hub_height_m, name.
 Sources: eww offshore DB (Zenodo), Danish Stamdataregister, MaStR (DE), OSM Overpass tiles.
 """
 import pathlib, re
+import numpy as np
 import pandas as pd
 
 RAW = pathlib.Path("data/raw/turbines")
@@ -69,9 +70,15 @@ if rows:
         "source": "osm", "country": osm["cc"],
         "lat": pd.to_numeric(osm["lat"], errors="coerce"),
         "lon": pd.to_numeric(osm["lon"], errors="coerce"),
-        "capacity_mw": pd.to_numeric(
-            osm.get("output", pd.Series(dtype=str)).astype(str)
-              .str.extract(r"([\d.]+)")[0], errors="coerce"),
+        "capacity_mw": osm.get("output", pd.Series(dtype=str)).astype(str).map(
+            lambda s: (lambda v: v * 1000 if "gw" in s.lower()
+                       else v if "mw" in s.lower()
+                       else v / 1e6 if v is not None and v > 50000
+                       else v / 1000.0 if v is not None and v > 50
+                       else v)(pd.to_numeric(
+                           re.sub(r"[^\d.,]", "", str(s)).replace(",", "."),
+                           errors="coerce")) if str(s).strip() not in ("", "yes", "no")
+            else np.nan),
         "commissioning": pd.to_datetime(osm.get("start_date"), errors="coerce"),
         "offshore": False, "rotor_diameter_m": pd.NA, "hub_height_m": pd.NA,
         "name": osm.get("name", ""),
@@ -93,8 +100,28 @@ if mastr.exists():
 
 al = pd.concat(frames, ignore_index=True)
 al = al.dropna(subset=["lat", "lon"])
+CC_NORM = {"Germany": "DE", "Denmark": "DK", "United Kingdom": "GB",
+           "Netherlands": "NL", "Belgium": "BE", "France": "FR",
+           "Sweden": "SE", "Ireland": "IE", "Norway": "NO",
+           "United States": "US"}
+al["country"] = al.country.replace(CC_NORM)
 al = al[(al.lat.between(-90, 90)) & (al.lon.between(-180, 180))]
-# dedupe: prefer registers over OSM within 100 m for same point
-al = al.sort_values("source")
+# dedupe: registers (eww/dk/mastr) take precedence; drop OSM points within
+# 150 m of a register turbine and OSM self-duplicates within 50 m.
+from scipy.spatial import cKDTree
+KM_LAT = 110.57
+reg = al[al.source != "osm"]
+osm = al[al.source == "osm"].copy()
+tree_r = cKDTree(np.c_[reg.lat * KM_LAT, reg.lon * KM_LAT * np.cos(np.deg2rad(reg.lat))])
+dm, _ = tree_r.query(np.c_[osm.lat * KM_LAT, osm.lon * KM_LAT * np.cos(np.deg2rad(osm.lat))])
+osm = osm[(dm * 1000) > 150.0]
+tree_o = cKDTree(np.c_[osm.lat * KM_LAT, osm.lon * KM_LAT * np.cos(np.deg2rad(osm.lat))])
+pairs = tree_o.query_pairs(0.05)
+drop_i = set(j for _, j in pairs)
+osm = osm[~osm.index.isin(
+    osm.index[list(drop_i)])]
+al = pd.concat([reg, osm], ignore_index=True)
 al.to_csv(OUT / "turbines.csv", index=False)
+print("after dedupe: OSM dropped", int((dm * 1000 <= 150).sum()),
+      "near-register +", len(drop_i), "self-dupes")
 print("TOTAL", len(al), "| by source:", al.source.value_counts().to_dict())

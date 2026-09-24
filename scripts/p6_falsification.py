@@ -24,14 +24,19 @@ from scipy.stats import false_discovery_control
 P = pathlib.Path("data/processed"); R = pathlib.Path("results"); R.mkdir(exist_ok=True)
 cfg = yaml.safe_load(open("config/domain.yaml"))
 panel = pd.read_csv(P / "panel_daily.csv", parse_dates=["time"])
+import sys
+sys.path.insert(0, "scripts")
+from grid_utils import canon
+
 surf = xr.open_mfdataset(sorted(pathlib.Path("data/raw/era5").glob("surf_daily_*.nc")),
                          combine="by_coords")
-lat, lon = surf.latitude.values, surf.longitude.values
+_u10, _v10 = canon(surf["u10"]).load(), canon(surf["v10"]).load()
+lat, lon = _u10.latitude.values, _u10.longitude.values
 lat2, lon2 = np.meshgrid(lat, lon, indexing="ij")
-times = pd.DatetimeIndex(surf.time.values)
+times = pd.DatetimeIndex(_u10.time.values)
 
 def fit_beta(y, x, ctrls):
-    X = pd.concat([x, ctrls], axis=1).astype(float)
+    X = pd.concat([x, ctrls], axis=1).astype(float).dropna(axis=1)
     X = sm.add_constant(X)
     try:
         f = sm.OLS(y.values, X, missing="drop").fit(
@@ -66,7 +71,7 @@ for rn in list(cfg["transects"].keys()) + ["domain"]:
 cap_years = {y: xr.open_dataset(P / f"capdensity_{y}.nc")["__xarray_dataarray_variable__"]
              for y in [2000, 2010, 2021] if (P / f"capdensity_{y}.nc").exists()}
 cy = None; interp = None
-u10, v10 = surf["u10"].values, surf["v10"].values
+u10, v10 = _u10.values, _v10.values
 KM = 110.57; kmx = 111.32 * np.cos(np.deg2rad(lat2))
 steps = np.arange(1, 7) * 50.0; weights = np.exp(-steps / 100.0)
 dw = np.zeros((len(times),) + lat2.shape, dtype=np.float32)

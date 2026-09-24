@@ -62,7 +62,7 @@ def main():
                 print(cc, "node pass error:", str(e)[:150], flush=True)
             try:
                 WayHandler(emit).apply_file(str(pbf), locations=True,
-                                            idx="sparse_mem_array")
+                                            idx="sparse_file_array,data/tmp")
             except Exception as e:
                 print(cc, "way pass error:", str(e)[:150], flush=True)
         n_rows = sum(1 for _ in open(dst)) - 1

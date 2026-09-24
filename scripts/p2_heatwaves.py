@@ -21,17 +21,21 @@ OUT = pathlib.Path("data/processed"); OUT.mkdir(parents=True, exist_ok=True)
 cfg = yaml.safe_load(open("config/domain.yaml"))
 BASE0, BASE1 = cfg["period"]["baseline_climatology"]
 
+import sys
+sys.path.insert(0, "scripts")
+from grid_utils import canon
+
 surf = xr.open_mfdataset(sorted(ERA.glob("surf_daily_*.nc")), combine="by_coords")
-tmax, tmean = surf["tmax"].load(), surf["t2m"].load()
-times = pd.DatetimeIndex(surf.time.values)
-lat, lon = surf.latitude.values, surf.longitude.values
+tmax, tmean = canon(surf["tmax"]).load(), canon(surf["t2m_mean"]).load()
+times = pd.DatetimeIndex(tmax.time.values)
+lat, lon = tmax.latitude.values, tmax.longitude.values
 nt = len(times)
 print("surf loaded", tmax.shape)
 
 # ---- d2m for heat index ----
 try:
     hyd = xr.open_mfdataset(sorted(ERA.glob("hydro_daily_*.nc")), combine="by_coords")
-    d2m = hyd["d2m"].reindex(time=surf.time).load()
+    d2m = canon(hyd["d2m"]).reindex(time=tmax.time).load()
 except Exception:
     d2m = None
     print("hydro unavailable -> heat-index def skipped")

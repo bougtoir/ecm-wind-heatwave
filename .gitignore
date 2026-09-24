@@ -13,3 +13,4 @@ data/raw/
 data/interim/
 logs/
 *.osm.pbf
+data/processed/*.nc

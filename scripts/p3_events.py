@@ -20,9 +20,14 @@ P = pathlib.Path("data/processed"); R = pathlib.Path("results"); R.mkdir(exist_o
 ERA = pathlib.Path("data/raw/era5")
 cfg = yaml.safe_load(open("config/domain.yaml"))
 
+import sys
+sys.path.insert(0, "scripts")
+from grid_utils import canon
+
 surf = xr.open_mfdataset(sorted(ERA.glob("surf_daily_*.nc")), combine="by_coords")
-lat, lon = surf.latitude.values, surf.longitude.values
-times = pd.DatetimeIndex(surf.time.values)
+tmx = canon(surf["tmax"]).load()
+lat, lon = tmx.latitude.values, tmx.longitude.values
+times = pd.DatetimeIndex(tmx.time.values)
 lat2, lon2 = np.meshgrid(lat, lon, indexing="ij")
 
 wfi_ds = xr.open_dataset(P / "wfi_grid_daily.nc")
@@ -38,7 +43,8 @@ for name, tr in cfg["transects"].items():
 
 def rmean(da3, m):
     v = da3.values if hasattr(da3, "values") else da3
-    return v[:, m].mean(axis=1) if m is not None else v.mean(axis=(1, 2))
+    return (np.nanmean(v[:, m], axis=1) if m is not None
+            else np.nanmean(v, axis=(1, 2)))
 
 # climatological anomalies (baseline)
 base = (times >= "2000-01-01") & (times <= "2019-12-31")
@@ -50,10 +56,10 @@ wf = wfi_ds["wfi"].values
 mf = mfc_ds["mfc"].values
 z5 = mfc_ds["z500"].values
 hw = msk["pct95_tmax_3day"].values
-tm = surf["tmax"].values
-sl = surf["msl"].values
-tw = surf["tcwv"].values
-ss = surf["sst"].values
+tm = tmx.values
+sl = canon(surf["msl"]).reindex_like(tmx).values
+tw = canon(surf["tcwv"]).reindex_like(tmx).values
+ss = canon(surf["sst"]).reindex_like(tmx).values
 
 for rname, m in REGIONS.items():
     rows[f"{rname}__tmax_anom"] = anom(rmean(tm, m)) if m is not None else anom(tm.mean(axis=(1,2)))
@@ -92,6 +98,7 @@ for rname in REGIONS:
         "doy_cos": np.cos(2 * np.pi * d.time.dt.dayofyear / 365.25),
         "year": d.time.dt.year,
     })
+    X = X.dropna(axis=1)            # drop all-NaN controls (e.g. sst)
     fit = conley_se(y, X, None, None)
     res.append({"region": rname, "coef_wfi": fit.params.get("wfi", np.nan),
                 "se": fit.bse.get("wfi", np.nan), "p": fit.pvalues.get("wfi", np.nan),
