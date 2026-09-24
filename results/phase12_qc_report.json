@@ -1,0 +1,62 @@
+[
+ {
+  "check": "abstract_len",
+  "ok": true,
+  "detail": "217 words"
+ },
+ {
+  "check": "wordcount_9000",
+  "ok": true,
+  "detail": "2341 body words"
+ },
+ {
+  "check": "figs_cited",
+  "ok": true,
+  "detail": "cited [1, 2, 3, 4, 5, 6, 7, 8]"
+ },
+ {
+  "check": "refs_verified",
+  "ok": true,
+  "detail": "29 refs"
+ },
+ {
+  "check": "no_placeholder_refs",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "check": "item_count_15",
+  "ok": true,
+  "detail": "8 figs + 4 tables"
+ },
+ {
+  "check": "werr_in_text",
+  "ok": true,
+  "detail": "pooled -0.029"
+ },
+ {
+  "check": "products_present",
+  "ok": true,
+  "detail": "missing/empty: []"
+ },
+ {
+  "check": "processed_ledger",
+  "ok": true,
+  "detail": "11 hashed"
+ },
+ {
+  "check": "causal_language",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "check": "highlights",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "check": "declarations_marker",
+  "ok": true,
+  "detail": "data-availability section present"
+ }
+]
