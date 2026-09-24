@@ -7,7 +7,7 @@
  {
   "check": "wordcount_9000",
   "ok": true,
-  "detail": "2341 body words"
+  "detail": "2387 body words"
  },
  {
   "check": "figs_cited",
@@ -17,7 +17,7 @@
  {
   "check": "refs_verified",
   "ok": true,
-  "detail": "29 refs"
+  "detail": "30 refs"
  },
  {
   "check": "no_placeholder_refs",
@@ -32,7 +32,7 @@
  {
   "check": "werr_in_text",
   "ok": true,
-  "detail": "pooled -0.029"
+  "detail": "pooled -0.036"
  },
  {
   "check": "products_present",
