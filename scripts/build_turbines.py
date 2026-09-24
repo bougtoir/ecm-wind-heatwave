@@ -28,31 +28,28 @@ print("eww", len(frames[-1]))
 dk = RAW / "dk_stamdataregister.xls"
 if dk.exists():
     try:
-        d = pd.read_excel(dk, sheet_name=0, header=None)
-        # locate header row containing 'Navn'/'effect'
-        hdr = d.index[d.apply(lambda r: r.astype(str).str.contains("effect|Effect|Kapacitet|MW", case=False).any(), axis=1)]
-        print("dk header candidates:", hdr.tolist()[:5], "shape", d.shape)
-        # columns are parsed in the dedicated step below after header detection
-        d.columns = d.iloc[hdr[0]].astype(str).str.strip() if len(hdr) else d.columns
-        d = d.iloc[hdr[0] + 1:] if len(hdr) else d
-        cols = {c.lower(): c for c in d.columns}
-        lat_c = next((c for c in d.columns if "breddegrad" in c.lower() or "latitude" in c.lower() or "utm" in c.lower()), None)
-        lon_c = next((c for c in d.columns if "l\xe6ngdegrad" in c.lower() or "longitude" in c.lower() or "utm" in c.lower()), None)
-        cap_c = next((c for c in d.columns if "effect" in c.lower() or "kapacitet" in c.lower() or "kw" in c.lower()), None)
-        com_c = next((c for c in d.columns if "tilkoblet" in c.lower() or "drift" in c.lower() or "commission" in c.lower()), None)
-        print("dk cols:", lat_c, lon_c, cap_c, com_c, "|", list(d.columns)[:15])
-        if lat_c and cap_c:
-            fr = pd.DataFrame({
-                "source": "dk_stamdata", "country": "Denmark",
-                "lat": pd.to_numeric(d[lat_c], errors="coerce"),
-                "lon": pd.to_numeric(d[lon_c], errors="coerce") if lon_c else pd.NA,
-                "capacity_mw": pd.to_numeric(d[cap_c], errors="coerce") / (1000 if "kw" in cap_c.lower() else 1),
-                "commissioning": pd.to_datetime(d[com_c], errors="coerce") if com_c else pd.NaT,
-                "offshore": d.apply(lambda r: "hav" in str(r).lower(), axis=1) if "hav" else False,
-                "rotor_diameter_m": pd.NA, "hub_height_m": pd.NA, "name": "DK turbine",
-            })
-            frames.append(fr)
-            print("dk", len(fr))
+        from pyproj import Transformer
+        tr = Transformer.from_crs("EPSG:25832", "EPSG:4326", always_xy=True)
+        d = pd.read_excel(dk, sheet_name=0, header=6)
+        d = d[d["Turbine identifier (GSRN)"].astype(str).str.match(r"\d{10,}", na=False)]
+        xe, yn = "X (east) coordinate\nUTM 32 Euref89", "Y (north) coordinate\nUTM 32 Euref89"
+        x = pd.to_numeric(d[xe], errors="coerce")
+        y = pd.to_numeric(d[yn], errors="coerce")
+        lo, la = tr.transform(x.values, y.values)
+        lo = pd.Series(lo).where(x.notna()); la = pd.Series(la).where(x.notna())
+        fr = pd.DataFrame({
+            "source": "dk_stamdata", "country": "Denmark",
+            "lat": la.values, "lon": lo.values,
+            "capacity_mw": pd.to_numeric(d["Capacity (kW)"], errors="coerce") / 1000.0,
+            "commissioning": pd.to_datetime(d["Date of original connection to grid"], errors="coerce"),
+            "offshore": d["Type of location"].astype(str).str.upper().str.contains("HAV|SEA|OFFSHORE"),
+            "rotor_diameter_m": pd.to_numeric(d["Rotor diameter (m)"], errors="coerce"),
+            "hub_height_m": pd.to_numeric(d["Hub height (m)"], errors="coerce"),
+            "name": d["Turbine identifier (GSRN)"].astype(str),
+        })
+        fr = fr.dropna(subset=["lat", "lon"])
+        frames.append(fr)
+        print("dk", len(fr))
     except Exception as e:
         print("dk parse FAILED:", e)
 
