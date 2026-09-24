@@ -56,26 +56,24 @@ if dk.exists():
     except Exception as e:
         print("dk parse FAILED:", e)
 
-# ---- OSM tiles ----
+# ---- OSM Geofabrik extracts ----
 rows = []
-for f in sorted((RAW / "osm/tiles").glob("*.csv")):
+for f in sorted((RAW / "osm_extracted").glob("*.csv")):
     try:
         t = pd.read_csv(f, sep="\t", on_bad_lines="skip")
         if len(t) > 1:
-            t["cc"] = f.name.split("_")[0]
+            t["cc"] = f.stem.split(".")[0]
             rows.append(t)
     except Exception:
         pass
 if rows:
     osm = pd.concat(rows, ignore_index=True)
-    osm.columns = [c.lstrip("@") for c in osm.columns]
-    cc = osm["cc"]
     fr = pd.DataFrame({
-        "source": "osm", "country": cc,
+        "source": "osm", "country": osm["cc"],
         "lat": pd.to_numeric(osm["lat"], errors="coerce"),
         "lon": pd.to_numeric(osm["lon"], errors="coerce"),
         "capacity_mw": pd.to_numeric(
-            osm.get("generator:output:electricity", pd.Series(dtype=str)).astype(str)
+            osm.get("output", pd.Series(dtype=str)).astype(str)
               .str.extract(r"([\d.]+)")[0], errors="coerce"),
         "commissioning": pd.to_datetime(osm.get("start_date"), errors="coerce"),
         "offshore": False, "rotor_diameter_m": pd.NA, "hub_height_m": pd.NA,
