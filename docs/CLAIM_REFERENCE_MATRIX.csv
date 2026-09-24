@@ -1,0 +1,13 @@
+claim,reference_key,doi,status
+wind farms perturb surface temperature (obs),zhou2012;zhou2015;nunalee2018,10.1038/nclimate1505;10.3390/s150714981;10.1073/pnas.1000493107,OK
+climate-model wake/momentum parameterization,fitch2012;fitch2013;volker2017,10.1175/mwr-d-11-00352.1;10.1175/jcli-d-12-00376.1;10.5194/gmd-8-3715-2015,OK (volker fixed to peer-reviewed GMD version)
+wake loss costs / uncoordinated build,lundquist2019,10.1038/s41560-018-0281-2,FIXED (was Publisher Correction DOI)
+far-field offshore wakes,platis2018;siedersleben2018,10.1038/s41598-018-20389-y;10.1088/1748-9326/aaea0b,OK
+Mahalanobis observational matching,rosenbaum1983,10.1093/biomet/70.1.41,ADDED (replaces mismatched conley/callaway cites)
+DiD design,callaway2021,10.1016/j.jeconom.2020.12.001,OK (moved to D3)
+dependence-robust inference,conley1999,10.1016/s0304-4076(98)00084-0,OK
+demand-temperature dynamics,brog2024,10.1016/j.apenergy.2024.123387,OK
+ERA5 source,hersbach2020,10.1002/qj.4803,OK
+OPSD source,wiese2019,10.1016/j.apenergy.2018.11.097,OK
+rebound terminology contrast,solarrebound2026,10.1038/s41560-026-02026-5,OK
+regional climate wind-farm impacts,vautard2014;millerkeith2018;qian2022;fiedler2021,—,OK

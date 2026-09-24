@@ -39,7 +39,7 @@ n_tab = 4
 check("item_count_15", n_fig + n_tab <= 15, f"{n_fig} figs + {n_tab} tables")
 
 # 5. numeric traceability: values embedded in docx equal pipeline outputs
-w9 = pd.read_csv(R / "phase9_werr_summary.csv")
+w9 = pd.read_csv(R / "werr_country_summary.csv")
 pooled = w9[w9.country == "ALL"].iloc[0]
 check("werr_in_text", f"{pooled.werr_mean:.3f}" in text,
       f"pooled {pooled.werr_mean:.3f}")

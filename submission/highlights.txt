@@ -1,5 +1,5 @@
-- WERR defined: share of wind energy offset by heat-driven demand caused by deployment.
-- 22 MJJAS seasons of ERA5 + 140k registered turbines; pressure-level moisture flux reconstructed.
-- Four complementary observational designs + nine-test falsification battery.
-- Pooled WERR -0.03 [-0.04,-0.02]: no robust aggregate rebound; localized positives on North-Sea corridors.
-- Production WRF counterfactual suite specified (6 scenarios x 4 events x 3 members), not executed.
+- WERR: share of wind energy offset by deployment-linked heat demand.
+- 22 warm seasons of ERA5 and a 140k-turbine provenance-ledgered register.
+- Four observational designs plus an 11-check falsification battery.
+- Pooled WERR -0.036 [-0.067,-0.007]: no robust aggregate rebound.
+- Production WRF counterfactual suite designed but not executed.

@@ -130,11 +130,11 @@ para(
 # ================= HIGHLIGHTS =================
 h("Highlights", 1)
 for hl in [
-    "We define WERR: the share of wind energy offset by heat-driven demand caused by deployment.",
-    "22 MJJAS seasons of ERA5 plus 140k registered turbines; moisture flux reconstructed from pressure levels.",
-    "Four complementary observational designs plus an 11-check falsification battery.",
-    f"Pooled WERR {f(w9_all.werr_mean)} [{f(w9_all.werr_lo)},{f(w9_all.werr_hi)}]: no robust aggregate rebound; localized positives exist.",
-    "Production WRF counterfactual suite (6 scenarios × 4 events × 3 members) is specified but not run.",
+    "WERR: share of wind energy offset by deployment-linked heat demand.",
+    "22 warm seasons of ERA5 and a 140k-turbine provenance-ledgered register.",
+    "Four observational designs plus an 11-check falsification battery.",
+    f"Pooled WERR {f(w9_all.werr_mean)} [{f(w9_all.werr_lo)},{f(w9_all.werr_hi)}]: no robust rebound.",
+    "Production WRF counterfactual suite designed but not executed.",
 ]:
     doc.add_paragraph(hl, style="List Bullet")
 
@@ -378,13 +378,14 @@ para(f"Table 2 and Fig. 4 report the regional regressions. On the "
      f"coefficient is negative ({b_dm.coef_wfi*1e4:.2f}×10⁻⁴). Effects are "
      "thus directional and heterogeneous rather than a domain-wide uniform "
      "signal, consistent with a transport-mediated mechanism.")
-para("Numerically, a β of 0.5×10⁻⁴ °C/MW on the North-Sea–Denmark/Germany "
-     "corridor corresponds, at that region's mean 2021 exposure, to an "
-     "order-of-magnitude 0.1 °C contribution to the regional Tmax anomaly — "
-     "detectable, but two orders below the anomaly of a major heatwave "
-     "(several °C). The sign pattern (positive where exposure is dense and "
-     "maritime, null-to-negative elsewhere) survives the BH-FDR correction "
-     "in four of six regional tests.")
+para(f"Numerically, the North-Sea–Denmark/Germany coefficient "
+     f"({b_ns.coef_wfi*1e4:.1f}×10⁻⁴ °C/MW) at event-mean exposure implies "
+     "a cluster-scale contribution of order 1–2 °C to the regional Tmax "
+     "anomaly on positive corridors, with comparable-magnitude negative "
+     "implied anomalies on Atlantic/domain regions — the sign pattern "
+     "(positive where exposure is dense and maritime, null-to-negative "
+     "elsewhere) survives the BH-FDR correction in four of six regional "
+     "tests.")
 
 h("3.3 Analog-matched estimates", 2)
 afr = a4[a4.region == "atlantic_to_france"].iloc[0]
