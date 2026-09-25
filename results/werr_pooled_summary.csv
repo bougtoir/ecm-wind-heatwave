@@ -1,0 +1,2 @@
+country,region,n_events,werr_mean,werr_lo,werr_hi,werr_mean_coefmc
+ALL,-,3017,-0.03550210793057188,-0.06729797568309527,-0.005716675384831221,-0.03567374058273425

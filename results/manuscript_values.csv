@@ -1,0 +1,16 @@
+value_id,display,source,script,location,status
+beta_nsde,5.04e-4,results/phase3_panel_regression.csv,p3_events.py,§3.2/Tab2,OK
+beta_domain,-38.68e-4,results/phase3_panel_regression.csv,p3_events.py,§3.2/Tab2,OK
+werr_pooled,-0.036,results/werr_pooled_summary.csv,r1_werr.py,abstract/§3.7/Tab4,OK
+werr_ci,"[-0.067,-0.007]",results/werr_pooled_summary.csv,r1_werr.py,abstract/§3.7,OK
+n_events_werr,3017,results/werr_event_level.csv,r1_werr.py,§3.7,OK
+n_pixevents,21327,data/processed/heatwave_events.csv,p2_heatwaves.py,§3.1,OK
+n_turbines,140010,data/processed/turbines.csv,build_turbines.py,§2.2,OK
+analog_fr,0.40,results/phase4_analog_effect.csv,p4_analogs.py,§3.3,OK
+max_smd,0.27,results/phase4_balance.csv,p4_analogs.py,§3.3,OK
+slope_max,336,results/demand_model_comparison.csv,r1_demand.py,§3.6/Tab3,OK
+twfe_hw,2.87e-4,results/phase5_twfe.csv,p5_deployment.py,§3.4,OK
+fdr_survivors,4/6,results/phase6_fdr.csv,p6_falsification.py,§3.5,OK
+n_falsif_executed,11,results/falsification_canonical.csv,R3 audit,§2.6/§3.5,OK
+wrf_scenarios,6x4x3,wrf/scenarios.md,Phase7,§4.1,OK
+seed,20260924,config/domain.yaml,-,§2.8,OK

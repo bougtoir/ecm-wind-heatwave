@@ -113,11 +113,11 @@ ax.set_xticks(range(len(f6)), [t[:22] for t in labels], rotation=70, ha="right",
               fontsize=6)
 ax.axhline(0, lw=0.6, color="k")
 ax.set_ylabel("coef (1e-4 degC/MW)")
-ax.set_title("(f) Falsification battery")
+ax.set_title("(f) Falsification-and-sensitivity battery")
 save(fig, "fig7_falsification")
 
 # ---- F8: WERR ----
-w9 = pd.read_csv(R / "phase9_werr_summary.csv")
+w9 = pd.read_csv(R / "werr_country_summary.csv")
 fig, ax = plt.subplots(figsize=(6.5, 3.4))
 g = w9[w9.country != "ALL"]
 y = np.arange(len(g))

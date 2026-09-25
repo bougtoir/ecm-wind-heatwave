@@ -1,0 +1,19 @@
+check_id,definition,script,executed,result,family
+P_northsea_to_lowcountries,primary regional WFI->Tmax regression,scripts/p3_events.py,True,beta=3.686e-04 p=2.02e-04,primary (BH-FDR family of 6)
+P_northsea_to_denmark_germany,primary regional WFI->Tmax regression,scripts/p3_events.py,True,beta=5.038e-04 p=3.18e-10,primary (BH-FDR family of 6)
+P_atlantic_to_france,primary regional WFI->Tmax regression,scripts/p3_events.py,True,beta=-1.280e-06 p=9.93e-01,primary (BH-FDR family of 6)
+P_atlantic_to_iberia,primary regional WFI->Tmax regression,scripts/p3_events.py,True,beta=-2.134e-04 p=2.90e-05,primary (BH-FDR family of 6)
+P_uk_offshore_to_continent,primary regional WFI->Tmax regression,scripts/p3_events.py,True,beta=5.525e-04 p=1.42e-22,primary (BH-FDR family of 6)
+P_domain,primary regional WFI->Tmax regression,scripts/p3_events.py,True,beta=-3.868e-03 p=1.08e-14,primary (BH-FDR family of 6)
+C1_downwind_exposure,sign-flipped (downwind) exposure is null,scripts/p6_falsification.py,True,beta=1.009e-03 p=9.01e-02,falsification
+C3_placebo_+45d,+45-day placebo timing is null,scripts/p6_falsification.py,True,beta=1.211e-03 p=4.78e-01,falsification
+C4_offseason_NovMar,Nov-Mar off-season control,scripts/p6_falsification.py,False,"infeasible: archive is MJJAS-only; documented, never claimed",falsification
+C5_weak_outcome_SST,SST outcome shows no turbine signal,scripts/p6_falsification.py,True,beta=-3.649e-04 p=3.86e-01,falsification
+C6_kernel_50km,kernel/decay sensitivity: kernel_50km,scripts/p6_falsification.py,True,beta=-8.118e-03 p=4.77e-07,sensitivity
+C6_kernel_200km,kernel/decay sensitivity: kernel_200km,scripts/p6_falsification.py,True,beta=-1.610e-03 p=3.79e-12,sensitivity
+C6_kernel_unweighted,kernel/decay sensitivity: kernel_unweighted,scripts/p6_falsification.py,True,beta=-3.182e-03 p=6.11e-10,sensitivity
+C7_LOO_drop_northsea_to_lowcountries,leave-one-region-out stability: northsea_to_lowcountries,scripts/p6_falsification.py,True,beta=-2.205e-04 p=4.18e-01,sensitivity/robustness
+C7_LOO_drop_northsea_to_denmark_germany,leave-one-region-out stability: northsea_to_denmark_germany,scripts/p6_falsification.py,True,beta=-4.067e-04 p=1.48e-01,sensitivity/robustness
+C7_LOO_drop_atlantic_to_france,leave-one-region-out stability: atlantic_to_france,scripts/p6_falsification.py,True,beta=5.980e-04 p=1.46e-03,sensitivity/robustness
+C7_LOO_drop_atlantic_to_iberia,leave-one-region-out stability: atlantic_to_iberia,scripts/p6_falsification.py,True,beta=1.890e-03 p=4.54e-16,sensitivity/robustness
+C7_LOO_drop_uk_offshore_to_continent,leave-one-region-out stability: uk_offshore_to_continent,scripts/p6_falsification.py,True,beta=-1.031e-03 p=3.31e-04,sensitivity/robustness
