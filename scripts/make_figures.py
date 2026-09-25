@@ -113,7 +113,7 @@ ax.set_xticks(range(len(f6)), [t[:22] for t in labels], rotation=70, ha="right",
               fontsize=6)
 ax.axhline(0, lw=0.6, color="k")
 ax.set_ylabel("coef (1e-4 degC/MW)")
-ax.set_title("(f) Falsification battery")
+ax.set_title("(f) Falsification-and-sensitivity battery")
 save(fig, "fig7_falsification")
 
 # ---- F8: WERR ----

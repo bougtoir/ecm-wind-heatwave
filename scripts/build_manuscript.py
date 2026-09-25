@@ -115,10 +115,12 @@ para(
     "its convergence, define heatwaves by five criteria, and estimate effects "
     "with four complementary designs: regional panel regression, "
     "circulation-matched analogs, a cell × year two-way fixed-effects "
-    "difference-in-differences, and an 11-check falsification battery. Effects "
-    "on regional maximum temperature are small and spatially heterogeneous "
-    "(≈0.4–0.6×10⁻³ °C per MW of upstream exposure on North-Sea corridors, "
-    "≈0 for France). Propagated through a validated demand model, the pooled "
+    "difference-in-differences, plus a falsification-and-sensitivity battery "
+    "(11 executed checks). Effects on regional maximum temperature are "
+    "spatially heterogeneous (association-implied event-median ΔT of order "
+    "1–2 °C on North-Sea corridors, ≈0 for France, negative elsewhere; "
+    "per-MW coefficients ≈0.4–0.6×10⁻³ °C). Propagated through a marginal "
+    "demand-sensitivity model with propagated coefficient uncertainty, the pooled "
     f"WERR is {f(w9_all.werr_mean)} "
     f"[95% CI {f(w9_all.werr_lo)}, {f(w9_all.werr_hi)}] across "
     f"{int(w9_all.n_events):,} heatwave events — i.e., no robust aggregate "
@@ -132,7 +134,7 @@ h("Highlights", 1)
 for hl in [
     "WERR: share of wind energy offset by deployment-linked heat demand.",
     "22 warm seasons of ERA5 and a 140k-turbine provenance-ledgered register.",
-    "Four observational designs plus an 11-check falsification battery.",
+    "Four designs plus a falsification-and-sensitivity battery (11 checks).",
     f"Pooled WERR {f(w9_all.werr_mean)} [{f(w9_all.werr_lo)},{f(w9_all.werr_hi)}]: no robust rebound.",
     "Production WRF counterfactual suite designed but not executed.",
 ]:
@@ -311,7 +313,7 @@ para_cited("(D3) Cell × year two-way fixed-effects DiD on the seasonal panel "
            "(cell and year FE; clustered and block-bootstrap inference), plus an "
            "event study on first-treatment year relative to never-treated cells",
            ["callaway2021"], ".")
-para("(D4) Falsification battery: downwind (sign-flipped) exposure, placebo "
+para("(D4) Falsification-and-sensitivity battery: downwind (sign-flipped) exposure, placebo "
      "outcome shifted +45 d, SST as weak outcome, alternative kernels, "
      "leave-one-region-out, alternative heatwave definitions; Benjamini–"
      "Hochberg FDR control across the primary family.")
@@ -325,7 +327,20 @@ para_cited("Country-level daily mean and peak load and wind generation come "
            "2015–2018 and validate on 2019–2020 (Table 3), consistent with "
            "documented European heat-demand dynamics")
 add_cites(doc.paragraphs[-1], cite("brog2024"))
-doc.paragraphs[-1].add_run(". For each primary "
+doc.paragraphs[-1].add_run(". The "
+           "slope is a local marginal temperature sensitivity, estimated on "
+           "deseasonalized residuals; out-of-sample R² is low or negative for "
+           "many countries (Table 3), so we propagate coefficient uncertainty "
+           "rather than claim predictive skill. Slope standard errors use a "
+           "month-block bootstrap (B=500, months resampled with replacement "
+           "within the training years). Instability is flagged when the slope "
+           "changes sign across blocked-CV folds or |slope|/SE<1; unstable "
+           "slopes are shrunk via a normal–normal empirical-Bayes step toward "
+           "the inverse-variance pooled mean (μ≈27 MW/°C, between-country "
+           "τ²≈9.5×10³): posterior mean = (w·x + μ/τ²)/(w + 1/τ²) with "
+           "w = 1/SE². The rule uses only training-period slope properties — "
+           "never the WERR sign or magnitude — and affects GB (fixed at 0) "
+           "plus DK, AT, NO, FI and CH. For each primary "
            "heatwave event we compute the association-implied temperature change "
            "ΔT = β_region·WFI, translate it to energy with the demand slope "
            "and event duration, and divide by the event's actual wind "
@@ -378,14 +393,20 @@ para(f"Table 2 and Fig. 4 report the regional regressions. On the "
      f"coefficient is negative ({b_dm.coef_wfi*1e4:.2f}×10⁻⁴). Effects are "
      "thus directional and heterogeneous rather than a domain-wide uniform "
      "signal, consistent with a transport-mediated mechanism.")
-para(f"Numerically, the North-Sea–Denmark/Germany coefficient "
-     f"({b_ns.coef_wfi*1e4:.1f}×10⁻⁴ °C/MW) at event-mean exposure implies "
-     "a cluster-scale contribution of order 1–2 °C to the regional Tmax "
-     "anomaly on positive corridors, with comparable-magnitude negative "
-     "implied anomalies on Atlantic/domain regions — the sign pattern "
-     "(positive where exposure is dense and maritime, null-to-negative "
-     "elsewhere) survives the BH-FDR correction in four of six regional "
-     "tests.")
+dT_med = w9e.groupby("region").apply(
+        lambda g: (g.wfi_MW * g.beta).median(), include_groups=False)
+para(f"Numerically, event-mean exposure implies regional ΔT medians of "
+         f"{dT_med['northsea_to_denmark_germany']:+.1f} °C "
+         "(North-Sea–Denmark/Germany), "
+         f"{dT_med['uk_offshore_to_continent']:+.1f} °C (UK-offshore), "
+         f"{dT_med['northsea_to_lowcountries']:+.1f} °C (Low Countries), "
+         f"{dT_med['atlantic_to_iberia']:+.1f} °C (Iberia), "
+         f"{dT_med['domain']:+.1f} °C (domain) and ≈0 °C for France — "
+         "i.e. implied anomalies of order 1–2 °C in either sign on the "
+         "high-exposure corridors rather than a uniformly small effect. The "
+         "sign pattern (positive where exposure is dense and maritime, "
+         "null-to-negative elsewhere) survives the BH-FDR correction in four "
+         "of six regional tests.")
 
 h("3.3 Analog-matched estimates", 2)
 afr = a4[a4.region == "atlantic_to_france"].iloc[0]
@@ -421,7 +442,10 @@ h("3.5 Falsification", 2)
 c1 = f6[f6.test == "C1_downwind_exposure"].iloc[0]
 c3 = f6[f6.test == "C3_placebo_+45d"].iloc[0]
 c5 = f6[f6.test == "C5_weak_outcome_SST"].iloc[0]
-para(f"The battery (Fig. 7) largely behaves as required: the sign-flipped "
+para(f"The battery (Fig. 7; 11 executed checks — 3 falsification controls, "
+     "3 kernel/decay sensitivities and 5 leave-one-region-out robustness tests; "
+     "the Nov–Mar off-season control is infeasible on the MJJAS-only archive "
+     "and is documented rather than claimed) largely behaves as required: the sign-flipped "
      f"(downwind) exposure is null (p={c1.p:.2f}), the +45-day placebo is "
      f"null (p={c3.p:.2f}), SST as outcome is null (p={c5.p:.2f}). "
      "Kernel choice does matter: alternative decay scales change the sign "
@@ -492,7 +516,7 @@ para("4.1 Preregistered counterfactual design (not executed). A WRF-Fitch "
 # ================= 5. CONCLUSIONS =================
 h("5. Conclusions", 1)
 para(f"Across 22 warm seasons of reanalysis, four complementary designs and "
-     f"an 11-check falsification battery, large-scale European wind "
+     f"a falsification-and-sensitivity battery (11 executed checks), large-scale European wind "
      "deployment is associated with a small, spatially heterogeneous meteorological "
      "signature on warm-season extreme temperature: positive (≈0.4–0.6"
      "×10⁻³ °C per MW upstream) on North-Sea corridors, near zero over "
@@ -556,7 +580,7 @@ fig("fig5_analogs", "Figure 5. Circulation-matched high- vs low-WFI Tmax "
     "differences (95% bootstrap CI).")
 fig("fig6_eventstudy", "Figure 6. Event-study coefficients around first "
     "treatment year (treated minus never-treated).")
-fig("fig7_falsification", "Figure 7. Falsification battery coefficients "
+fig("fig7_falsification", "Figure 7. Falsification-and-sensitivity battery coefficients "
     "(red: p<0.05).")
 fig("fig8_werr", "Figure 8. Signed WERR per country with 95% bootstrap CI; "
     "dashed = pooled estimate.")

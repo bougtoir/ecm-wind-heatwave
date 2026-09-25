@@ -5,7 +5,7 @@
 - Quantitative traceability: manuscript_values.csv; placeholder/hard-code
   scan CLEAN; event counts consistent (3,017 analyzed; 21,327 pixel-events).
 - Agreement across abstract/main/highlights/cover letter/graphical
-  abstract: pooled WERR -0.036 [-0.067,-0.007].
+  abstract: pooled WERR -0.036 [-0.067, -0.006].
 - No unexecuted analysis presented as executed (WRF, C4 off-season
   explicitly not run).
 - No unsupported causal claim (claim-strength audit).

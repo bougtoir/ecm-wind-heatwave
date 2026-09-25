@@ -117,7 +117,13 @@ if len(allw):
         s_d = np.array([rng.normal(svec.iloc[k], ssevec.iloc[k])
                         if np.isfinite(ssevec.iloc[k]) and ssevec.iloc[k] > 0
                         else svec.iloc[k] for k in range(len(svec))])
-        b_d = rng.normal(bvec.values, bsevec.values)
+        # shared region coefficient: draw ONCE per region per replicate, then
+        # map to countries (DE/DK, NL/BE, ES/PT, GB/IE, IT/AT/PL/CZ share betas)
+        reg_draw = {r: rng.normal(bvec_r, bse_r)
+                    for r, bvec_r, bse_r in
+                    zip(bvec.index.map(lambda c: C2R[c]),
+                        bvec.values, bsevec.values)}
+        b_d = np.array([reg_draw[C2R[c]] for c in bvec.index])
         sc = (s_d * b_d) / scale0.values
         sc[~np.isfinite(sc)] = 1.0
         means.append((w_arr[idx] * sc[ccat[idx]]).mean())

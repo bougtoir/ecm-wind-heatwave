@@ -5,8 +5,11 @@ PY = .venv/bin/python
 all: acquire analysis revision figures manuscript qc
 
 acquire:
+	$(PY) scripts/dl_static_sources.py
 	$(PY) scripts/dl_era5.py
 	$(PY) scripts/dl_osm_pbf.py
+	$(PY) scripts/extract_osm_wind.py
+	$(PY) scripts/parse_mastr.py
 	$(PY) scripts/build_turbines.py
 	$(PY) scripts/p1_qc.py
 

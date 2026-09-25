@@ -2,7 +2,7 @@
 
 - Title: "Does large-scale wind-energy extraction feed back on European
   heatwaves? A data-driven estimate of the meteorological electricity rebound"
-- Canonical primary result: pooled WERR = -0.036 [-0.067, -0.007] over
+- Canonical primary result: pooled WERR = -0.036 [-0.067, -0.006] over
   3,017 events (revised demand slopes + MC propagation of slope and beta SE).
 - Changed vs audited version: demand model reanalyzed (M0/M1/M2, shrinkage);
   WERR CIs widened; fragile country estimates shrunk; unresolved code

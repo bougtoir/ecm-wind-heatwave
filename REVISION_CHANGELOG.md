@@ -9,3 +9,19 @@
 | 6 | TYPE1 | reference defects | references_verified.csv, build_manuscript.py | lundquist DOI->underlying article; volker->peer-reviewed GMD; rosenbaum1983 added; callaway to D3 | done |
 | 7 | TYPE1 | ECM compliance | highlights.txt, docx | highlights <=85 chars; requirements doc refreshed | done |
 | 8 | TYPE2 | bundles + clean test | ECM_*.zip | submission + reproducibility zips; clean clone build PASS | done |
+
+## Finishing pass (2026-09-25, r3)
+- Devin Review fixes: demand bootstrap restricted to training years with
+  duplicate month resampling (np.isin dedupe bug); pooled MC now draws shared
+  region coefficients once per replicate (r1_werr.py); Makefile acquire now
+  includes dl_static_sources (registers/OPSD), extract_osm_wind, parse_mastr;
+  submission artifacts re-synced and zip hash-verified.
+- Implied ΔT verified against canonical files; manuscript states regional
+  medians (+1.8/+2.0/+1.4 °C North-Sea corridors, -0.6 Iberia, -1.9 domain,
+  ~0 France); bare "small" removed.
+- "validated demand model" wording replaced; §2.7 now documents bootstrap,
+  instability rule, EB shrinkage (mu, tau2, formula, affected countries,
+  WERR-independence). Table 3 exposes CV/test R².
+- "11-check falsification battery" renamed falsification-and-sensitivity
+  battery; machine-readable inventory added (results/falsification_inventory.csv).
+- ECM_submission_FINAL.zip + ECM_reproducibility_bundle_FINAL.zip built.

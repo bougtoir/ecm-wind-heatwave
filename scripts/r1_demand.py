@@ -96,13 +96,17 @@ for cc in countries:
                          d.hol.values, d.yr.values, d.covid.values])
     b1, r1tr, _ = fit_r2(X[tr], resid[tr], X[~tr], resid[~tr])
     slope1 = b1[1]
-    # month-block bootstrap for slope SE
-    months = d.index.to_period("M"); uq = months.unique()
+    # month-block bootstrap for slope SE — same estimand as reported slope:
+    # resample TRAIN-period (<=2018) months with replacement, keeping duplicate
+    # month picks (concatenated row indices, not np.isin)
+    tr_idx = np.where(tr)[0]
+    months_tr = d.index[tr].to_period("M"); uq = months_tr.unique()
+    month_rows = {m: tr_idx[months_tr == m] for m in uq}
     bs_slopes = []
     for _ in range(500):
         pick = uq[rng.integers(0, len(uq), len(uq))]
-        idx = np.isin(months, pick)
-        if idx.sum() < 60 or cdd[idx].std() < 1e-9: continue
+        idx = np.concatenate([month_rows[m] for m in pick])
+        if len(idx) < 60 or cdd[idx].std() < 1e-9: continue
         bb = np.linalg.lstsq(X[idx], resid.values[idx], rcond=None)[0]
         bs_slopes.append(bb[1])
     se1 = float(np.std(bs_slopes)) if len(bs_slopes) > 10 else np.nan

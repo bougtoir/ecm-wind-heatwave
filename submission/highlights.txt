@@ -1,5 +1,5 @@
 - WERR: share of wind energy offset by deployment-linked heat demand.
 - 22 warm seasons of ERA5 and a 140k-turbine provenance-ledgered register.
-- Four observational designs plus an 11-check falsification battery.
-- Pooled WERR -0.036 [-0.067,-0.007]: no robust aggregate rebound.
+- Four designs plus a falsification-and-sensitivity battery (11 checks).
+- Pooled WERR -0.036 [-0.067,-0.006]: no robust aggregate rebound.
 - Production WRF counterfactual suite designed but not executed.
