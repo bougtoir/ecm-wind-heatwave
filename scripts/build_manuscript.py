@@ -37,6 +37,10 @@ cap  = pd.read_csv(P / "capacity_annual.csv", index_col=0)
 tf   = pd.read_csv(P / "transect_flux_daily.csv")
 hw   = pd.read_csv(P / "heatwave_regional.csv", parse_dates=["time"])
 
+_s = dem.m1_slope.values; _se = dem.m1_se.values
+_w = 1.0 / _se**2
+eb_mu = float(np.nansum(_s * _w) / np.nansum(_w))
+eb_tau2 = float(max(0.0, np.nanmean(_s**2 - _se**2)))
 prim = ev[ev.definition == "pct95_tmax_3day"]
 n_tb = len(tb); n_ev = len(prim)
 cap21 = float(cap.loc[cap.index == 2021].sum(axis=1).iloc[0])
@@ -124,10 +128,11 @@ para(
     f"WERR is {f(w9_all.werr_mean)} "
     f"[95% CI {f(w9_all.werr_lo)}, {f(w9_all.werr_hi)}] across "
     f"{int(w9_all.n_events):,} heatwave events — i.e., no robust aggregate "
-    "rebound, with localized positive values (up to ~0.3 in the Low Countries) "
-    "where upstream exposure is dense and wind generation small. Large-eddy "
-    "counterfactuals were designed but not executed on the available budget; "
-    "production WRF configurations accompany the replication package.")
+    "rebound, with localized positive values (up to ~0.4 in Ireland and "
+    "~0.1 in the Low Countries) where upstream exposure is dense and wind "
+    "generation small. Mesoscale WRF counterfactuals were designed but not "
+    "executed on the available budget; production WRF configurations "
+    "accompany the replication package.")
 
 # ================= HIGHLIGHTS =================
 h("Highlights", 1)
@@ -336,8 +341,9 @@ doc.paragraphs[-1].add_run(". The "
            "within the training years). Instability is flagged when the slope "
            "changes sign across blocked-CV folds or |slope|/SE<1; unstable "
            "slopes are shrunk via a normal–normal empirical-Bayes step toward "
-           "the inverse-variance pooled mean (μ≈27 MW/°C, between-country "
-           "τ²≈9.5×10³): posterior mean = (w·x + μ/τ²)/(w + 1/τ²) with "
+           "the inverse-variance pooled mean (μ≈"
+           f"{eb_mu:.0f} MW/°C, between-country "
+           f"τ²≈{eb_tau2/1000:.1f}×10³): posterior mean = (w·x + μ/τ²)/(w + 1/τ²) with "
            "w = 1/SE². The rule uses only training-period slope properties — "
            "never the WERR sign or magnitude — and affects GB (fixed at 0) "
            "plus DK, AT, NO, FI and CH. For each primary "
@@ -403,10 +409,14 @@ para(f"Numerically, event-mean exposure implies regional ΔT medians of "
          f"{dT_med['atlantic_to_iberia']:+.1f} °C (Iberia), "
          f"{dT_med['domain']:+.1f} °C (domain) and ≈0 °C for France — "
          "i.e. implied anomalies of order 1–2 °C in either sign on the "
-         "high-exposure corridors rather than a uniformly small effect. The "
+         "high-exposure corridors rather than a uniformly small effect. "
+         "These are β×WFI scenario magnitudes — the linear response implied "
+         "by D1 under sustained exposure — not observed turbine-attributable "
+         "warming; they are upper bounds on the association-implied "
+         "perturbation and must not be read as measured causal ΔT. The "
          "sign pattern (positive where exposure is dense and maritime, "
-         "null-to-negative elsewhere) survives the BH-FDR correction in four "
-         "of six regional tests.")
+         "null-to-negative elsewhere) survives the BH-FDR correction in "
+         f"{int((fdr.p_fdr < 0.05).sum())} of {len(fdr)} regional tests.")
 
 h("3.3 Analog-matched estimates", 2)
 afr = a4[a4.region == "atlantic_to_france"].iloc[0]
@@ -450,9 +460,12 @@ para(f"The battery (Fig. 7; 11 executed checks — 3 falsification controls, "
      f"null (p={c3.p:.2f}), SST as outcome is null (p={c5.p:.2f}). "
      "Kernel choice does matter: alternative decay scales change the sign "
      "of the domain coefficient, so the domain-level estimate is not "
-     "kernel-robust. The off-season control could not be run because the "
-     "download is MJJAS-only — flagged as a limitation. After BH-FDR, 4 of "
-     "6 regional primary tests survive.")
+     "kernel-robust; likewise, dropping either Atlantic region flips the "
+     "domain coefficient positive, so the domain sign is aggregation-"
+     "sensitive while corridor-level signs are stable. The off-season "
+     "control could not be run because the download is MJJAS-only — flagged "
+     f"as a limitation. After BH-FDR, {int((fdr.p_fdr < 0.05).sum())} of "
+     f"{len(fdr)} regional primary tests survive.")
 
 h("3.6 Demand sensitivity", 2)
 para(f"Table 3 summarizes the per-country deseasonalized CDD model. Slopes "
@@ -480,10 +493,15 @@ para(f"Fig. 8 and Table 4 give per-event WERR for {len(w9e):,} events. The "
      f"(BE {w9s.set_index('country').loc['BE'].werr_mean:.2f}, "
      f"NL {w9s.set_index('country').loc['NL'].werr_mean:.2f}, "
      f"DK {w9s.set_index('country').loc['DK'].werr_mean:.3f}, "
-     f"DE {w9s.set_index('country').loc['DE'].werr_mean:.3f}), ~0 for France, "
-     "and negative where the panel coefficient is negative. The pooled "
+     f"DE {w9s.set_index('country').loc['DE'].werr_mean:.3f}), largest for "
+     f"Ireland (IE {w9s.set_index('country').loc['IE'].werr_mean:.2f}, where "
+     "wind generation in the denominator is small), ~0 for France, and "
+     "negative where the panel coefficient is negative. The pooled "
      "negative sign reflects the negative domain coefficient applied to "
-     "countries mapped to it; the signed heterogeneity — not the sign — is "
+     "countries mapped to it; extreme country values (e.g. CZ "
+     f"{w9s.set_index('country').loc['CZ'].werr_mean:.2f}) are "
+     "association-implied scenario ratios on small denominators, not "
+     "measured demand offsets — the signed heterogeneity, not the sign, is "
      "the robust feature.")
 
 # ================= 4. DISCUSSION =================
@@ -562,7 +580,9 @@ table(["Country", "slope MW/°C", "CV R²", "R² 2019-20"],
 table(["Country", "Region", "n events", "WERR mean", "95% CI"],
       [[r.country, r.region, int(r.n_events), f"{r.werr_mean:.3f}",
         f"[{r.werr_lo:.3f},{r.werr_hi:.3f}]"] for r in w9s.itertuples()],
-      "Table 4. Per-event WERR by country (bootstrap CI over events).")
+      "Table 4. Per-event WERR by country (bootstrap CI over events). "
+      "GB is fixed at zero by the shrinkage rule (slope fixed at 0); its "
+      "[0,0] interval is a plug-in consequence, not a measured zero.")
 
 # ================= FIGURES =================
 doc.add_page_break()
