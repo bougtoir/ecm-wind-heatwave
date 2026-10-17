@@ -31,12 +31,18 @@ fdr  = pd.read_csv(R / "phase6_fdr.csv")
 dem  = pd.read_csv(R / "demand_model_comparison.csv")
 w9s  = pd.read_csv(R / "werr_country_summary.csv")
 w9e  = pd.read_csv(R / "werr_event_level.csv")
+cds  = pd.read_csv(R / "country_day_werr_summary.csv").set_index("country")
+cd_all = cds.loc["ALL"]
 ev   = pd.read_csv(P / "heatwave_events.csv", parse_dates=["start"])
 tb   = pd.read_csv(P / "turbines.csv")
 cap  = pd.read_csv(P / "capacity_annual.csv", index_col=0)
 tf   = pd.read_csv(P / "transect_flux_daily.csv")
 hw   = pd.read_csv(P / "heatwave_regional.csv", parse_dates=["time"])
 
+_s = dem.m1_slope.values; _se = dem.m1_se.values
+_w = 1.0 / _se**2
+eb_mu = float(np.nansum(_s * _w) / np.nansum(_w))
+eb_tau2 = float(max(0.0, np.nanmean(_s**2 - _se**2)))
 prim = ev[ev.definition == "pct95_tmax_3day"]
 n_tb = len(tb); n_ev = len(prim)
 cap21 = float(cap.loc[cap.index == 2021].sum(axis=1).iloc[0])
@@ -120,14 +126,19 @@ para(
     "spatially heterogeneous (association-implied event-median ΔT of order "
     "1–2 °C on North-Sea corridors, ≈0 for France, negative elsewhere; "
     "per-MW coefficients ≈0.4–0.6×10⁻³ °C). Propagated through a marginal "
-    "demand-sensitivity model with propagated coefficient uncertainty, the pooled "
-    f"WERR is {f(w9_all.werr_mean)} "
+    "demand-sensitivity model with propagated coefficient uncertainty, the "
+    f"event-level mean WERR is {f(w9_all.werr_mean)} "
     f"[95% CI {f(w9_all.werr_lo)}, {f(w9_all.werr_hi)}] across "
-    f"{int(w9_all.n_events):,} heatwave events — i.e., no robust aggregate "
-    "rebound, with localized positive values (up to ~0.3 in the Low Countries) "
-    "where upstream exposure is dense and wind generation small. Large-eddy "
-    "counterfactuals were designed but not executed on the available budget; "
-    "production WRF configurations accompany the replication package.")
+    f"{int(w9_all.n_events):,} heatwave events; the energy-accounting "
+    "country-day estimand (each country's generation counted once per day, "
+    f"{int(cd_all.n_country_days):,} country-days) gives "
+    f"WERR_CD = {cd_all.werr_cd:.4f} "
+    f"[{cd_all.boot_lo:.4f}, {cd_all.boot_hi:.4f}] — the event mean "
+    "overweights small denominators. Neither shows a robust aggregate "
+    "rebound; localized positive values (up to ~0.4 in Ireland) occur where "
+    "exposure is dense and generation small. Mesoscale WRF counterfactuals "
+    "were designed but not executed; production configurations accompany "
+    "the replication package.")
 
 # ================= HIGHLIGHTS =================
 h("Highlights", 1)
@@ -135,7 +146,7 @@ for hl in [
     "WERR: share of wind energy offset by deployment-linked heat demand.",
     "22 warm seasons of ERA5 and a 140k-turbine provenance-ledgered register.",
     "Four designs plus a falsification-and-sensitivity battery (11 checks).",
-    f"Pooled WERR {f(w9_all.werr_mean)} [{f(w9_all.werr_lo)},{f(w9_all.werr_hi)}]: no robust rebound.",
+    f"WERR_CD {cd_all.werr_cd:.3f} [{cd_all.boot_lo:.3f},{cd_all.boot_hi:.3f}] on country-days; event-mean {f(w9_all.werr_mean)}.",
     "Production WRF counterfactual suite designed but not executed.",
 ]:
     doc.add_paragraph(hl, style="List Bullet")
@@ -217,7 +228,7 @@ para("Contribution. (i) A harmonized, provenance-ledgered turbine register "
      "heatwave definitions; (iii) four complementary identification designs "
      "with resampling-based inference appropriate to spatially and temporally "
      "dependent data; (iv) a signed, event-level rebound metric WERR with "
-     "bootstrap uncertainty; (v) a preregistered WRF counterfactual design "
+     "bootstrap uncertainty; (v) a prespecified WRF counterfactual design "
      "for future causal closure.")
 p.add_run(" Section 2 describes data and the four estimation designs; "
           "Section 3 reports results; Section 4 discusses limitations and the "
@@ -336,8 +347,9 @@ doc.paragraphs[-1].add_run(". The "
            "within the training years). Instability is flagged when the slope "
            "changes sign across blocked-CV folds or |slope|/SE<1; unstable "
            "slopes are shrunk via a normal–normal empirical-Bayes step toward "
-           "the inverse-variance pooled mean (μ≈27 MW/°C, between-country "
-           "τ²≈9.5×10³): posterior mean = (w·x + μ/τ²)/(w + 1/τ²) with "
+           "the inverse-variance pooled mean (μ≈"
+           f"{eb_mu:.0f} MW/°C, between-country "
+           f"τ²≈{eb_tau2/1000:.1f}×10³): posterior mean = (w·x + μ/τ²)/(w + 1/τ²) with "
            "w = 1/SE². The rule uses only training-period slope properties — "
            "never the WERR sign or magnitude — and affects GB (fixed at 0) "
            "plus DK, AT, NO, FI and CH. For each primary "
@@ -345,7 +357,16 @@ doc.paragraphs[-1].add_run(". The "
            "ΔT = β_region·WFI, translate it to energy with the demand slope "
            "and event duration, and divide by the event's actual wind "
            "generation: WERR = ΔE_heat/E_wind. Uncertainty is bootstrapped "
-           "over events, with Monte-Carlo draws of the atmospheric and demand coefficients inside each replicate (B=1000).")
+           "over events, with Monte-Carlo draws of the atmospheric and demand coefficients inside each replicate (B=1000). Because pixel-level "
+           "events share whole-country denominators (3,017 events reuse only "
+           "≈3.2k unique country-days, mean multiplicity 5.4), we also define "
+           "a country-day estimand: each country's actual wind generation "
+           "enters at most once per day, and the demand response is applied "
+           "once per country-day, weighted by the fraction of the country's "
+           "event pixels under an active event; WERR_CD is the ratio of "
+           "summed implied demand to summed generation, with uncertainty "
+           "from a two-way (country × year) block bootstrap plus delta-method "
+           "propagation of coefficient standard errors.")
 
 h("2.8 Reproducibility", 2)
 para("Every estimate derives from versioned raw data (SHA-256 ledger, "
@@ -403,10 +424,14 @@ para(f"Numerically, event-mean exposure implies regional ΔT medians of "
          f"{dT_med['atlantic_to_iberia']:+.1f} °C (Iberia), "
          f"{dT_med['domain']:+.1f} °C (domain) and ≈0 °C for France — "
          "i.e. implied anomalies of order 1–2 °C in either sign on the "
-         "high-exposure corridors rather than a uniformly small effect. The "
+         "high-exposure corridors rather than a uniformly small effect. "
+         "These are β×WFI scenario magnitudes — the linear response implied "
+         "by D1 under sustained exposure — not observed turbine-attributable "
+         "warming; they are upper bounds on the association-implied "
+         "perturbation and must not be read as measured causal ΔT. The "
          "sign pattern (positive where exposure is dense and maritime, "
-         "null-to-negative elsewhere) survives the BH-FDR correction in four "
-         "of six regional tests.")
+         "null-to-negative elsewhere) survives the BH-FDR correction in "
+         f"{int((fdr.p_fdr < 0.05).sum())} of {len(fdr)} regional tests.")
 
 h("3.3 Analog-matched estimates", 2)
 afr = a4[a4.region == "atlantic_to_france"].iloc[0]
@@ -450,9 +475,12 @@ para(f"The battery (Fig. 7; 11 executed checks — 3 falsification controls, "
      f"null (p={c3.p:.2f}), SST as outcome is null (p={c5.p:.2f}). "
      "Kernel choice does matter: alternative decay scales change the sign "
      "of the domain coefficient, so the domain-level estimate is not "
-     "kernel-robust. The off-season control could not be run because the "
-     "download is MJJAS-only — flagged as a limitation. After BH-FDR, 4 of "
-     "6 regional primary tests survive.")
+     "kernel-robust; likewise, dropping either Atlantic region flips the "
+     "domain coefficient positive, so the domain sign is aggregation-"
+     "sensitive while corridor-level signs are stable. The off-season "
+     "control could not be run because the download is MJJAS-only — flagged "
+     f"as a limitation. After BH-FDR, {int((fdr.p_fdr < 0.05).sum())} of "
+     f"{len(fdr)} regional primary tests survive.")
 
 h("3.6 Demand sensitivity", 2)
 para(f"Table 3 summarizes the per-country deseasonalized CDD model. Slopes "
@@ -480,11 +508,30 @@ para(f"Fig. 8 and Table 4 give per-event WERR for {len(w9e):,} events. The "
      f"(BE {w9s.set_index('country').loc['BE'].werr_mean:.2f}, "
      f"NL {w9s.set_index('country').loc['NL'].werr_mean:.2f}, "
      f"DK {w9s.set_index('country').loc['DK'].werr_mean:.3f}, "
-     f"DE {w9s.set_index('country').loc['DE'].werr_mean:.3f}), ~0 for France, "
-     "and negative where the panel coefficient is negative. The pooled "
+     f"DE {w9s.set_index('country').loc['DE'].werr_mean:.3f}), largest for "
+     f"Ireland (IE {w9s.set_index('country').loc['IE'].werr_mean:.2f}, where "
+     "wind generation in the denominator is small), ~0 for France, and "
+     "negative where the panel coefficient is negative. The pooled "
      "negative sign reflects the negative domain coefficient applied to "
-     "countries mapped to it; the signed heterogeneity — not the sign — is "
-     "the robust feature.")
+     "countries mapped to it; extreme country values (e.g. CZ "
+     f"{w9s.set_index('country').loc['CZ'].werr_mean:.2f}) are "
+     "association-implied scenario ratios on small denominators, not "
+     "measured demand offsets — the signed heterogeneity, not the sign, is "
+     "the robust feature. On the country-day estimand (Table 4, right "
+     f"column), WERR_CD is {cd_all.werr_cd:.4f} "
+     f"[{cd_all.boot_lo:.4f}, {cd_all.boot_hi:.4f}] over "
+     f"{int(cd_all.n_country_days):,} eligible country-days — statistically "
+     "indistinguishable from zero and directionally opposite to the "
+     "event-average. The disagreement is an estimand effect, not a data "
+     "conflict: the event mean averages per-event ratios (small "
+     "denominators dominate; each country's generation is counted once per "
+     "event, i.e. many times per day), whereas WERR_CD sums energies once "
+     "per country-day. We prefer WERR_CD for energy accounting and report "
+     f"both (equal-country mean {cd_all.werr_cd_equal_country:.4f}; "
+     f"unweighted coverage {cd_all.werr_cd_unweighted:.4f}; alternate "
+     f"demand model {cd_all.werr_cd_m2:.4f}; leave-one-country-out range "
+     f"{min(cd_all[f'loo_{c}'] for c in cds.index if c != 'ALL'):.4f} to "
+     f"{max(cd_all[f'loo_{c}'] for c in cds.index if c != 'ALL'):.4f}).")
 
 # ================= 4. DISCUSSION =================
 h("4. Discussion", 1)
@@ -503,7 +550,7 @@ para("Limitations. (a) OSM units are mostly undated — the static background "
      "computable from the MJJAS archive; (e) WERR denominators rely on "
      "2015–2020 OPSD coverage, so earlier events lack direct E_wind. "
      "The counterfactual-modelling gap is addressed in §4.1.")
-para("4.1 Preregistered counterfactual design (not executed). A WRF-Fitch "
+para("4.1 Prespecified counterfactual design (not executed). A WRF-Fitch "
      "suite was specified (d01 27 km / d02 9 km Europe, YSU PBL, six "
      "deployment states S0/S50/S100/S150/S150u/S150d, four historical "
      "heatwaves, three perturbed members; ~68k core-hours, ~29 TB) but "
@@ -521,8 +568,10 @@ para(f"Across 22 warm seasons of reanalysis, four complementary designs and "
      "signature on warm-season extreme temperature: positive (≈0.4–0.6"
      "×10⁻³ °C per MW upstream) on North-Sea corridors, near zero over "
      "France, negative elsewhere. Propagated to electricity demand, the "
-     f"pooled Wind-induced Electricity Rebound Ratio is "
-     f"{f(w9_all.werr_mean)} [{f(w9_all.werr_lo)},{f(w9_all.werr_hi)}] — "
+     f"Wind-induced Electricity Rebound Ratio is {cd_all.werr_cd:.4f} "
+     f"[{cd_all.boot_lo:.4f},{cd_all.boot_hi:.4f}] on the country-day "
+     f"accounting estimand (event-level mean {f(w9_all.werr_mean)} "
+     f"[{f(w9_all.werr_lo)},{f(w9_all.werr_hi)}]) — "
      "i.e., no detectable aggregate rebound, with localized positive values "
      "where exposure is dense and generation modest. The mechanism is "
      "consistent with a transport-mediated externality rather than a bulk "
@@ -559,10 +608,17 @@ table(["Country", "slope MW/°C", "CV R²", "R² 2019-20"],
         f"{r.m1_r2_test:.2f}"] for r in dem.itertuples()],
       "Table 3. Deseasonalized CDD demand model (train 2015–18 / test 2019–20).")
 
-table(["Country", "Region", "n events", "WERR mean", "95% CI"],
+table(["Country", "Region", "n events", "WERR mean", "95% CI",
+       "n c-days", "WERR_CD"],
       [[r.country, r.region, int(r.n_events), f"{r.werr_mean:.3f}",
-        f"[{r.werr_lo:.3f},{r.werr_hi:.3f}]"] for r in w9s.itertuples()],
-      "Table 4. Per-event WERR by country (bootstrap CI over events).")
+        f"[{r.werr_lo:.3f},{r.werr_hi:.3f}]",
+        int(cds.loc[r.country, "n_country_days"]) if r.country in cds.index else "-",
+        f"{cds.loc[r.country, 'werr_cd']:.3f}" if r.country in cds.index else "-"]
+       for r in w9s.itertuples()],
+      "Table 4. Per-event WERR by country (bootstrap CI over events), with "
+      "the country-day ratio-of-sums WERR_CD. "
+      "GB is fixed at zero by the shrinkage rule (slope fixed at 0); its "
+      "[0,0] interval is a plug-in consequence, not a measured zero.")
 
 # ================= FIGURES =================
 doc.add_page_break()
@@ -583,7 +639,8 @@ fig("fig6_eventstudy", "Figure 6. Event-study coefficients around first "
 fig("fig7_falsification", "Figure 7. Falsification-and-sensitivity battery coefficients "
     "(red: p<0.05).")
 fig("fig8_werr", "Figure 8. Signed WERR per country with 95% bootstrap CI; "
-    "dashed = pooled estimate.")
+    "dashed = pooled event-mean estimate. The country-day ratio-of-sums "
+    "estimand WERR_CD is reported in Table 4 and §3.7.")
 
 # ================= REFERENCES =================
 doc.add_page_break()

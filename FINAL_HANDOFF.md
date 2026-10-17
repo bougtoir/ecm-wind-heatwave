@@ -1,30 +1,45 @@
-# FINAL HANDOFF — targeted ECM revision
+# FINAL HANDOFF — ECM wind × heatwave package (2026-10-17, country-day gate)
 
-- Title: "Does large-scale wind-energy extraction feed back on European
-  heatwaves? A data-driven estimate of the meteorological electricity rebound"
-- Canonical primary result: pooled WERR = -0.036 [-0.067, -0.006] over
-  3,017 events (revised demand slopes + MC propagation of slope and beta SE).
-- Changed vs audited version: demand model reanalyzed (M0/M1/M2, shrinkage);
-  WERR CIs widened; fragile country estimates shrunk; unresolved code
-  literal removed; "nine-test" corrected to 11 executed checks; Publisher
-  Correction and GMDD-preprint references repaired; causal wording
-  calibrated; highlights <=85 chars.
-- Demand validation: negative/low OOS R2 for total residual load retained
-  and reported; slopes used as local marginal sensitivities with SEs.
-- WERR interpretation: no robust aggregate rebound; localized positives
-  (BE, NL, DK, DE); negative on Atlantic/domain corridors; GB fixed 0.
-- Exposure sensitivity: North-Sea positives robust to dated-only and
-  registry-only variants; Iberia/France not.
-- Falsification: 11 executed checks + 6 primaries (4/6 FDR-surviving);
-  off-season control infeasible (documented).
-- Analog balance: max |SMD| 0.27; treated as upper bound only.
-- WRF status: production configs + scenario generator + compute budget;
-  NOT executed (single-VM budget).
-- Reproducibility: clean clone env + tests + downstream rebuild PASS
-  (raw re-acquisition boundary documented).
-- ECM compliance: refreshed requirements; highlights <=85 chars;
-  graphical abstract separate; declarations complete.
-- Final artifacts: ECM_submission.zip; ECM_reproducibility_bundle.zip;
-  results/phase12_qc_report.json ALL PASS.
-- External blockers: none beyond documented compute boundary.
-- Final commit: see git log HEAD on revision/ecm-targeted.
+Branch: devin/hostile-audit → base: main (canonical HEAD before this pass: b746b8e).
+
+## Deliverables (repo root)
+- ECM_submission_COUNTRY_DAY_FINAL.zip — 16 journal-facing files (supersedes HOSTILE_AUDITED submission zip)
+- ECM_reproducibility_COUNTRY_DAY_FINAL.zip — 157 files (supersedes HOSTILE_AUDITED bundle)
+- ECM_submission_HOSTILE_AUDITED.zip — 15 journal-facing files
+- ECM_reproducibility_HOSTILE_AUDITED.zip — 146 files (scripts, configs,
+  canonical outputs, processed data, ledgers, audit reports)
+
+SHA-256 are printed in the commit message and docs/HOSTILE_REVIEW_ECM.md
+appendix; recompute with `sha256sum ECM_*_HOSTILE_AUDITED.zip`.
+
+## Audit reports (docs/)
+- HOSTILE_REVIEW_ECM.md — editor + 4 hostile reviewers, verdicts, fixes
+- HARDCODE_AUDIT.md — prohibited-hardcode definition, findings B1–B7
+- DATA_TEXT_FIGURE_CONSISTENCY.md — independent recomputation ledger
+- MUTATION_TEST_REPORT.md — M1–M3 propagation tests
+- NUMERIC_PROVENANCE — results/NUMERIC_PROVENANCE.csv (582 tokens)
+- REPRODUCIBILITY_FINAL_CHECK.md — cached-input repro, citations
+- ECM_REQUIREMENTS_FINAL_CHECK.md — current ECM author requirements
+- FINAL_HOSTILE_DECISION.md — **SUBMIT (calibrated claims)**
+
+## New build tooling
+scripts/make_graphical_abstract.py, scripts/build_cover_letter.py,
+scripts/numeric_provenance.py. Makefile targets unchanged; run order:
+`make figures` → `make manuscript` → build_cover_letter.py →
+make_graphical_abstract.py → pytest → p12_qc.
+
+## Test status at handoff
+- pytest tests/test_smoke.py: 3/3 PASS
+- scripts/p12_qc.py: ALL PASS (abstract 232 w, body 2643 w)
+- Mutation tests M1–M3: PASS
+- Figures: bit-identical rebuild from canonical inputs
+
+## Honest residual risks (in manuscript text, not hidden)
+Domain-sign fragility under kernel/LOO variants; no measured MFC
+mediation; β×WFI is scenario magnitude not observed ΔT; overlapping
+pixel-events; negative OOS R² in demand models; WRF suite designed but
+not run; off-season falsification infeasible on MJJAS archive.
+
+## Manual steps left for the author
+Keywords at EM upload; ORCID link; GenAI disclosure checkbox;
+named-author version is single-anonymized as required.
