@@ -1,8 +1,10 @@
-# FINAL HANDOFF — ECM wind × heatwave package (2026-10-17)
+# FINAL HANDOFF — ECM wind × heatwave package (2026-10-17, country-day gate)
 
 Branch: devin/hostile-audit → base: main (canonical HEAD before this pass: b746b8e).
 
 ## Deliverables (repo root)
+- ECM_submission_COUNTRY_DAY_FINAL.zip — 16 journal-facing files (supersedes HOSTILE_AUDITED submission zip)
+- ECM_reproducibility_COUNTRY_DAY_FINAL.zip — 157 files (supersedes HOSTILE_AUDITED bundle)
 - ECM_submission_HOSTILE_AUDITED.zip — 15 journal-facing files
 - ECM_reproducibility_HOSTILE_AUDITED.zip — 146 files (scripts, configs,
   canonical outputs, processed data, ledgers, audit reports)

@@ -14,3 +14,9 @@ fdr_survivors,5/6,results/phase6_fdr.csv,p6_falsification.py,§3.5,OK
 n_falsif_executed,11,results/falsification_canonical.csv,R3 audit,§2.6/§3.5,OK
 wrf_scenarios,6x4x3,wrf/scenarios.md,Phase7,§4.1,OK
 seed,20260924,config/domain.yaml,-,§2.8,OK
+werr_cd,0.0009,results/country_day_werr_summary.csv,p9b_country_day_werr.py,abstract/§3.7/Tab4/HL,OK
+werr_cd_ci,"[-0.0048,0.0098]",results/country_day_werr_summary.csv,p9b_country_day_werr.py,abstract/§3.7,OK
+werr_cd_unweighted,-0.0049,results/country_day_werr_summary.csv,p9b_country_day_werr.py,§3.7,OK
+werr_cd_m2,0.0012,results/country_day_werr_summary.csv,p9b_country_day_werr.py,§3.7,OK
+werr_cd_equal_country,-0.0199,results/country_day_werr_summary.csv,p9b_country_day_werr.py,§3.7,OK
+n_country_days,2362,results/country_day_werr_summary.csv,p9b_country_day_werr.py,abstract/§3.7/Tab4,OK

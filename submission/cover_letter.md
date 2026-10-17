@@ -11,16 +11,20 @@ warm-season extreme temperature and the associated electricity demand enough
 to offset a detectable fraction of delivered wind energy — the WERR metric
 introduced here. Using 22 MJJAS seasons of ERA5, a 140k-turbine harmonized
 register, and four complementary observational designs with a falsification
-battery, we find a small, spatially heterogeneous effect and a pooled WERR
-of -0.036 [-0.067,-0.006]: no robust aggregate
-rebound, with localized positive values on dense North-Sea corridors and in
-Ireland.
+battery, we find a small, spatially heterogeneous effect. On the
+energy-accounting country-day estimand (ratio of summed implied demand to
+summed actual generation, each country's wind counted at most once per day)
+WERR_CD is 0.001 [-0.005,0.010]; the legacy
+event-level mean is -0.036 [-0.067,-0.006].
+Neither shows a robust aggregate rebound, with localized positive values on
+dense North-Sea corridors and in Ireland.
 
 We believe ECM is the natural venue: the paper sits at the energy-system /
-atmospheric-science interface, proposes a reusable metric, and is honest
-about the sign and bounds of the effect. The replication package (data
-ledger, code, WRF counterfactual configurations for the preregistered causal
-closure) accompanies the submission.
+atmospheric-science interface, proposes a reusable metric with a
+denominator-consistent estimand, and is honest about the sign and bounds of
+the effect. The replication package (data ledger, code, WRF counterfactual
+configurations for the prespecified causal closure) accompanies the
+submission.
 
 The work is original, not under consideration elsewhere, and free of
 competing interests.

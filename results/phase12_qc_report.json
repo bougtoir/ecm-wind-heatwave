@@ -2,12 +2,12 @@
  {
   "check": "abstract_len",
   "ok": true,
-  "detail": "232 words"
+  "detail": "246 words"
  },
  {
   "check": "wordcount_9000",
   "ok": true,
-  "detail": "2643 body words"
+  "detail": "2825 body words"
  },
  {
   "check": "figs_cited",

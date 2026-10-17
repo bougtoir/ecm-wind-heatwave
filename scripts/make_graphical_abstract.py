@@ -15,6 +15,7 @@ F = pathlib.Path("figs"); F.mkdir(exist_ok=True)
 P = pathlib.Path("data/processed"); R = pathlib.Path("results")
 
 w9 = pd.read_csv(R / "werr_pooled_summary.csv").iloc[0]
+cd = pd.read_csv(R / "country_day_werr_summary.csv").set_index("country").loc["ALL"]
 ev = pd.read_csv(P / "heatwave_events.csv")
 n_pix = int((ev.definition == "pct95_tmax_3day").sum())
 tb = pd.read_csv(P / "turbines.csv")
@@ -46,8 +47,8 @@ for i, (x, title, sub, color) in enumerate(boxes):
         ax.text(x + 2.26, 2.62, labels[i], ha="center", fontsize=10, style="italic")
 
 ax.text(5.0, 0.72,
-        f"Pooled WERR = {w9.werr_mean:.2f} [{w9.werr_lo:.2f},{w9.werr_hi:.2f}]: "
-        "no robust aggregate rebound;",
+        f"Country-day WERR_CD = {cd.werr_cd:.3f} [{cd.boot_lo:.3f},{cd.boot_hi:.3f}]; "
+        f"event-mean {w9.werr_mean:.2f}: no robust aggregate rebound;",
         ha="center", fontsize=11.5, style="italic")
 ax.text(5.0, 0.32,
         "localized positive rebound on dense North-Sea corridors",

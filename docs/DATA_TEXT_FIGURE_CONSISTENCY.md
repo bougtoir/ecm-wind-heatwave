@@ -40,3 +40,15 @@ scripts/{build_manuscript,build_cover_letter,make_figures,make_graphical_abstrac
 Rendered-output inspection: figs 1–8 PNG regenerated bit-identical from
 canonical inputs; GA regenerated; docx tables/text re-extracted post-build;
 no exponent corruption, minus signs intact, legends unclipped. PASS overall.
+
+## Country-day pass addendum (2026-10-17)
+- New canonical outputs: results/country_day_werr.csv (2,362 rows),
+  results/country_day_werr_summary.csv, results/event_country_day_crosswalk.csv
+  (21,826 rows, multiplicity column).
+- manuscript_values.csv: +6 rows (werr_cd, werr_cd_ci, werr_cd_unweighted,
+  werr_cd_m2, werr_cd_equal_country, n_country_days).
+- Manuscript abstract/§3.7/conclusions/Table 4, cover letter, highlights,
+  graphical abstract all derive WERR_CD from canonical csv at build.
+- Event-mean −0.036 preserved as legacy estimand; disagreement disclosed.
+- "Preregistered" → "prespecified" (2 occurrences).
+- Mutation test WERR_CD→0.999 propagated to manuscript/cover/highlights.
