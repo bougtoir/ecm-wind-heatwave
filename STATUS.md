@@ -48,3 +48,10 @@ with author ORCID details.
   COUNTRY_DAY_WERR_AUDIT, FOCUSED_HARDCODE_AUDIT, FOCUSED_HOSTILE_REVIEW,
   VALIDATION_REPORT}.md
 - "Preregistered" → "prespecified". p12_qc 13/13 PASS, pytest 3/3.
+
+## Public synchronization states (standing rule)
+A task is NOT publicly synchronized on a feature-branch push.
+States: PUSHED_TO_FEATURE_BRANCH → PR_OPEN → MERGED_TO_DEFAULT →
+PUBLIC_REPRODUCIBILITY_PASS. Only the last counts as complete.
+2026-10-17: PR #2 merged (e5e3ded); fresh-clone reproduction PASS
+(WERR_CD 0.0009 [-0.0048,+0.0098]). See docs/PUBLIC_REPOSITORY_SYNC_AUDIT.md.
