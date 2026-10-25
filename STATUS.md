@@ -61,3 +61,8 @@ PUBLIC_REPRODUCIBILITY_PASS. Only the last counts as complete.
 - Independent audit gates A–F: PASS / PASS-WITH-FIXES (wording + table-order branch, unmerged).
 - Sync state: MERGED_TO_DEFAULT + PUBLIC_REPRODUCIBILITY_PASS (archived-processed scope).
 - Deliverables: docs/FINAL_INDEPENDENT_HOSTILE_REVIEW.md, FINAL_COMPUTATIONAL_INTEGRITY_AUDIT.md, COUNTRY_DAY_ACCOUNTING_AUDIT.md, FINAL_DATA_TEXT_FIGURE_CONSISTENCY.md, FINAL_REPRODUCIBILITY_SCOPE.md, FINAL_ECM_SUBMISSION_GATE.md, FINAL_HANDOFF.md.
+
+## DOCUMENT_LOCK gate (2026-10-25)
+- Document-integrity gates 0-7: PASS / PASS-WITH-FIXES on branch devin/document-integrity (PR open, unmerged).
+- Fixes: Fig. S1 orphan cite removed; captions Figure→Fig.; panel Fig.1(a); 3 OMML equations (WFI/WERR_e/WERR_CD); 7 document-integrity regression tests (pytest 11/11).
+- New zips: ECM_submission_DOCUMENT_LOCK.zip, ECM_reproducibility_DOCUMENT_LOCK.zip (CRC PASS, repro 66MB>50MB warn). Reproduction scope: archived-processed inputs.
