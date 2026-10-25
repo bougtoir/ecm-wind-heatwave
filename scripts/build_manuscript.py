@@ -558,7 +558,7 @@ para("4.1 Prespecified counterfactual design (not executed). A WRF-Fitch "
      "exceeds the available single-VM budget by two orders of magnitude; "
      "complete namelists and the scenario generator ship in the replication "
      "package. The observational estimates here are therefore to be read as "
-     "the defensible lower bar, and the WRF suite as the planned causal "
+     "the defensible lower bar, and the WRF suite as the planned counterfactual "
      "closure.")
 
 # ================= 5. CONCLUSIONS =================
