@@ -228,8 +228,8 @@ para("Contribution. (i) A harmonized, provenance-ledgered turbine register "
      "heatwave definitions; (iii) four complementary identification designs "
      "with resampling-based inference appropriate to spatially and temporally "
      "dependent data; (iv) a signed, event-level rebound metric WERR with "
-     "bootstrap uncertainty; (v) a prespecified WRF counterfactual design "
-     "for future causal closure.")
+     "bootstrap uncertainty; (v) a prespecified WRF counterfactual suite designed "
+     "for future counterfactual closure.")
 p.add_run(" Section 2 describes data and the four estimation designs; "
           "Section 3 reports results; Section 4 discusses limitations and the "
           "counterfactual-modelling programme; Section 5 concludes.")
