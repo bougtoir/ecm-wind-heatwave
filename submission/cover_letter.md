@@ -23,7 +23,7 @@ We believe ECM is the natural venue: the paper sits at the energy-system /
 atmospheric-science interface, proposes a reusable metric with a
 denominator-consistent estimand, and is honest about the sign and bounds of
 the effect. The replication package (data ledger, code, WRF counterfactual
-configurations for the prespecified causal closure) accompanies the
+configurations for the prespecified counterfactual suite) accompanies the
 submission.
 
 The work is original, not under consideration elsewhere, and free of
