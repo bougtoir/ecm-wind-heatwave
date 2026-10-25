@@ -7,7 +7,7 @@
  {
   "check": "wordcount_9000",
   "ok": true,
-  "detail": "2825 body words"
+  "detail": "2836 body words"
  },
  {
   "check": "figs_cited",

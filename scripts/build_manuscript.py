@@ -335,13 +335,13 @@ para_cited("Country-level daily mean and peak load and wind generation come "
            ["wiese2019"],
            ". For each country we estimate the deseasonalized sensitivity of "
            "residual daily load to cooling-degree-days above 22 °C on "
-           "2015–2018 and validate on 2019–2020 (Table 3), consistent with "
+           "2015–2018 and validate on 2019–2020 (model reported in §3.5), consistent with "
            "documented European heat-demand dynamics")
 add_cites(doc.paragraphs[-1], cite("brog2024"))
 doc.paragraphs[-1].add_run(". The "
            "slope is a local marginal temperature sensitivity, estimated on "
            "deseasonalized residuals; out-of-sample R² is low or negative for "
-           "many countries (Table 3), so we propagate coefficient uncertainty "
+           "many countries (§3.5), so we propagate coefficient uncertainty "
            "rather than claim predictive skill. Slope standard errors use a "
            "month-block bootstrap (B=500, months resampled with replacement "
            "within the training years). Instability is flagged when the slope "
@@ -427,8 +427,8 @@ para(f"Numerically, event-mean exposure implies regional ΔT medians of "
          "high-exposure corridors rather than a uniformly small effect. "
          "These are β×WFI scenario magnitudes — the linear response implied "
          "by D1 under sustained exposure — not observed turbine-attributable "
-         "warming; they are upper bounds on the association-implied "
-         "perturbation and must not be read as measured causal ΔT. The "
+         "warming and are not bounds either (no bounding argument is made); "
+         "they must not be read as measured causal ΔT. The "
          "sign pattern (positive where exposure is dense and maritime, "
          "null-to-negative elsewhere) survives the BH-FDR correction in "
          f"{int((fdr.p_fdr < 0.05).sum())} of {len(fdr)} regional tests.")
@@ -444,7 +444,8 @@ para(f"Under circulation matching (|SMD| ≲ 0.27 on all covariates, Fig. 5), "
      f"{adm.effect_C:.2f} °C (domain, p={adm.boot_p:.3f}); North-Sea "
      "corridors are near zero. The analog estimates are larger in absolute "
      "terms than the panel slope but likewise heterogeneous — we read them "
-     "as an upper bound under imperfect balance.")
+     "as raw matched contrasts — with imperfect balance they are neither "
+     "bounds nor causal effects.")
 
 h("3.4 Deployment quasi-experiment", 2)
 para(f"The cell×year TWFE (Fig. 6) yields +{tw.loc['hw_days','coef']*1e4:.2f}"
