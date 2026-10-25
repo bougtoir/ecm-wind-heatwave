@@ -15,3 +15,4 @@ logs/
 *.osm.pbf
 data/processed/*.nc
 data/tmp
+data/processed/
