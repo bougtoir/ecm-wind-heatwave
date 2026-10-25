@@ -37,3 +37,14 @@ Known limitations (documented, not hidden)
 
 Remaining manual step: upload ECM_submission_FINAL.zip to Editorial Manager
 with author ORCID details.
+
+## Country-day gate (2026-10-17) — PR #2
+- New estimand WERR_CD (country-day ratio-of-sums): +0.0009
+  [-0.0048, +0.0098] over 2,362 eligible country-days — primary
+  energy-accounting estimand. Event-mean -0.036 preserved as legacy.
+- Overlap audit: 3,017 events → 3,213 unique country-days (mean mult 5.4x).
+- Files: scripts/p9b_country_day_werr.py, results/country_day_werr*.csv,
+  results/event_country_day_crosswalk.csv, docs/{EVENT_OVERLAP_AUDIT,
+  COUNTRY_DAY_WERR_AUDIT, FOCUSED_HARDCODE_AUDIT, FOCUSED_HOSTILE_REVIEW,
+  VALIDATION_REPORT}.md
+- "Preregistered" → "prespecified". p12_qc 13/13 PASS, pytest 3/3.
