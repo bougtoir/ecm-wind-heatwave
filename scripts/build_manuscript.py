@@ -63,6 +63,34 @@ def cite(*keys):
             order.append(k)
     return [seen[k] for k in keys]
 
+from docx.oxml import parse_xml
+
+M_NS = "http://schemas.openxmlformats.org/officeDocument/2006/math"
+def omml_r(text, sty=None):
+    styxml = f'<m:sty m:val="{sty}"/>' if sty else ""
+    return (f'<m:r><m:rPr>{styxml}</m:rPr>'
+            f'<w:rPr><w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/></w:rPr>'
+            f'<m:t xml:space="preserve">{text}</m:t></m:r>')
+
+def omml_sub(base, sub):
+    return (f'<m:sSub><m:e>{omml_r(base,"p")}</m:e><m:sub>{omml_r(sub)}</m:sub></m:sSub>')
+
+def omml_frac(num_xml, den_xml):
+    return f'<m:f><m:num>{num_xml}</m:num><m:den>{den_xml}</m:den></m:f>'
+
+def omml_sum(sub, body_xml):
+    return (f'<m:nary><m:naryPr><m:chr m:val="\u2211"/><m:limLoc m:val="undOvr"/>'
+            f'<m:subHide m:val="0"/><m:supHide m:val="1"/></m:naryPr>'
+            f'<m:sub>{omml_r(sub)}</m:sub><m:sup/><m:e>{body_xml}</m:e></m:nary>')
+
+def eq(omml_body):
+    p = doc.add_paragraph()
+    math = (f'<m:oMathPara xmlns:m="{M_NS}" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+            f'<m:oMathParaPr><m:jc m:val="center"/></m:oMathParaPr>'
+            f'<m:oMath>{omml_body}</m:oMath></m:oMathPara>')
+    p._p.append(parse_xml(math))
+    return p
+
 def add_cites(par, nums):
     for i, n in enumerate(nums):
         r = par.add_run(str(n))
@@ -254,7 +282,7 @@ para_cited("We use ERA5 reanalysis",
            "SST, 10-m wind) were built on the same grid; dew point and soil "
            "moisture (swvl1–4) were remapped from the N320 Gaussian surface "
            "store by nearest-neighbour search.")
-para("Five fixed transects (Table 1, Fig. 1a) cross the major upstream "
+para("Five fixed transects (Table 1, Fig. 1(a)) cross the major upstream "
      "corridors — North Sea to the Low Countries and to Denmark/Germany, "
      "Atlantic to France and to Iberia, and UK offshore to the continent — "
      "and the daily cross-transect moisture flux F(t) is the along-line "
@@ -279,7 +307,7 @@ para(f"A unified register of {n_tb:,} turbines was assembled from four "
      f"{int((tb.source=='osm').sum()):,} OSM units. Where rated capacity is "
      "missing it is imputed by country median. Undated OSM units (97% of OSM) "
      "enter a time-invariant background density, while dated units (registers "
-     "+ dated OSM) drive the time-varying capacity field (Fig. 1a). This "
+     "+ dated OSM) drive the time-varying capacity field (Fig. 1(a)). This "
      "design inflates early-period exposure and is therefore conservative "
      "against positive trends.")
 
@@ -288,9 +316,22 @@ para("For each 1.5° cell and day we compute an upstream-capacity exposure "
      "(WFI): the cumulative deployed capacity sampled at six 50-km steps "
      "along the day's upwind direction (negative of the daily mean 10-m wind "
      "vector), exponentially weighted with a 100-km e-folding scale "
-     "(Fig. S1). The upstream construction yields the downwind-interception "
-     "weighting without an O(turbines×pixels×days) product; alternative "
-     "kernels (50 km, 200 km, unweighted) are used for falsification.")
+     "used for falsification). The upstream construction yields the "
+     "downwind-interception weighting without an O(turbines×pixels×days) "
+     "product:")
+_w1 = (omml_r("WFI","p") + omml_r("(") + omml_r("c","p") + omml_r(",")
+       + omml_r("d","p") + omml_r(")") + omml_r(" = ")
+       + omml_sum("k=1", omml_r("exp") + omml_r("(\u2212")
+                  + omml_frac(omml_r("50k"), omml_r("100")) + omml_r(")")
+                  + omml_r("\u00b7") + omml_sub("cap","d")
+                  + omml_r("(") + omml_sub("u","k") + omml_r("(") + omml_r("c","p")
+                  + omml_r(",") + omml_r("d","p") + omml_r("))")))
+eq(_w1)
+para("where u_k(c, d) is the k-th 50-km upwind sample along the day's mean "
+     "10-m wind vector and cap_d(·) is that day's deployed capacity in MW; "
+     "the 100-km e-folding scale caps the effective footprint at six steps. "
+     "Alternative kernels (50 km, 200 km, unweighted) enter the "
+     "falsification battery.")
 
 h("2.5 Heatwave definitions", 2)
 para("Primary: daily Tmax above the day-of-year-local 95th percentile "
@@ -366,7 +407,23 @@ doc.paragraphs[-1].add_run(". The "
            "event pixels under an active event; WERR_CD is the ratio of "
            "summed implied demand to summed generation, with uncertainty "
            "from a two-way (country × year) block bootstrap plus delta-method "
-           "propagation of coefficient standard errors.")
+           "propagation of coefficient standard errors. Formally the "
+           "per-event ratio and the country-day estimand are:")
+_werr_e = (omml_sub("WERR","e") + omml_r(" = ")
+           + omml_frac(omml_r("\u0394") + omml_sub("E","heat,e"),
+                       omml_sub("E","wind,e")))
+eq(_werr_e)
+_werr_cd = (omml_sub("WERR","CD") + omml_r(" = ")
+            + omml_frac(omml_sum("d\u2208D_c", omml_r("\u0394") + omml_sub("E","heat,d")),
+                        omml_sum("d\u2208D_c", omml_sub("E","wind,d"))))
+eq(_werr_cd)
+para("with \u0394E_heat,d = \u015d_c \u00b7 \u03b2\u0302_r \u00b7 WFI_r(d) \u00b7 "
+     "24h \u00b7 \u03c6_d (demand slope \u015d, regional exposure coefficient "
+     "\u03b2\u0302, 24-hour duration and pixel coverage \u03c6), D_c the eligible "
+     "country-day set and E_wind the country's actual daily wind generation. "
+     "The event mean averages the per-event WERR_e, while the country-day "
+     "estimand is a ratio of sums so a whole-country denominator can no "
+     "longer be shared by many simultaneous pixel-events.")
 
 h("2.8 Reproducibility", 2)
 para("Every estimate derives from versioned raw data (SHA-256 ledger, "
@@ -624,22 +681,22 @@ table(["Country", "Region", "n events", "WERR mean", "95% CI",
 # ================= FIGURES =================
 doc.add_page_break()
 h("Figures", 1)
-fig("fig1_deployment", "Figure 1. (a) Harmonized turbine register "
+fig("fig1_deployment", "Fig. 1. (a) Harmonized turbine register "
     "(140k units; colour = rated MW) with the five moisture transects "
     "(lines) and downstream regional boxes (dashed).")
-fig("fig2_moisture", "Figure 2. (a) MJJAS mean moisture-flux convergence "
+fig("fig2_moisture", "Fig. 2. (a) MJJAS mean moisture-flux convergence "
     "(kg m⁻² d⁻¹); (b) 30-day-smoothed cross-transect fluxes.")
-fig("fig3_heatwaves", "Figure 3. Heatwave climatology 2000–2021 under the "
+fig("fig3_heatwaves", "Fig. 3. Heatwave climatology 2000–2021 under the "
     "primary definition (Tmax > DOY-pct95, ≥3 d).")
-fig("fig4_panel", "Figure 4. Regional panel coefficient of Tmax anomaly on "
+fig("fig4_panel", "Fig. 4. Regional panel coefficient of Tmax anomaly on "
     "upstream WFI (95% bootstrap CI).")
-fig("fig5_analogs", "Figure 5. Circulation-matched high- vs low-WFI Tmax "
+fig("fig5_analogs", "Fig. 5. Circulation-matched high- vs low-WFI Tmax "
     "differences (95% bootstrap CI).")
-fig("fig6_eventstudy", "Figure 6. Event-study coefficients around first "
+fig("fig6_eventstudy", "Fig. 6. Event-study coefficients around first "
     "treatment year (treated minus never-treated).")
-fig("fig7_falsification", "Figure 7. Falsification-and-sensitivity battery coefficients "
+fig("fig7_falsification", "Fig. 7. Falsification-and-sensitivity battery coefficients "
     "(red: p<0.05).")
-fig("fig8_werr", "Figure 8. Signed WERR per country with 95% bootstrap CI; "
+fig("fig8_werr", "Fig. 8. Signed WERR per country with 95% bootstrap CI; "
     "dashed = pooled event-mean estimate. The country-day ratio-of-sums "
     "estimand WERR_CD is reported in Table 4 and §3.7.")
 

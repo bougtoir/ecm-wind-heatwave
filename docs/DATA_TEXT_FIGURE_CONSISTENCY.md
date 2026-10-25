@@ -52,3 +52,8 @@ no exponent corruption, minus signs intact, legends unclipped. PASS overall.
 - Event-mean −0.036 preserved as legacy estimand; disagreement disclosed.
 - "Preregistered" → "prespecified" (2 occurrences).
 - Mutation test WERR_CD→0.999 propagated to manuscript/cover/highlights.
+
+## DOCUMENT_LOCK re-verification (2026-10-25)
+- Rebuilt manuscript from canonical CSVs on top of main 4b414ab: abstract/§3/Table 4/cover letter/highlights/GA all re-verified against country_day_werr_summary.csv (+0.0009 [−0.0048,+0.0098]) and werr_pooled_summary.csv (−0.036 [−0.067,−0.006]).
+- New OMML equations introduce no values; definition paragraph lists symbolic factors only.
+- tests/test_document_integrity.py::test_werr_cd_matches_canonical_csv + test_pooled_event_mean_distinct_from_werr_cd lock estimand separation. PASS.
