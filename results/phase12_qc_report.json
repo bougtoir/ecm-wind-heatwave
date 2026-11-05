@@ -2,12 +2,12 @@
  {
   "check": "abstract_len",
   "ok": true,
-  "detail": "246 words"
+  "detail": "250 words"
  },
  {
   "check": "wordcount_9000",
   "ok": true,
-  "detail": "2950 body words"
+  "detail": "3094 body words"
  },
  {
   "check": "figs_cited",
@@ -25,9 +25,44 @@
   "detail": ""
  },
  {
-  "check": "item_count_15",
+  "check": "item_count",
   "ok": true,
   "detail": "8 figs + 4 tables"
+ },
+ {
+  "check": "re_refs_max50",
+  "ok": true,
+  "detail": "30 references"
+ },
+ {
+  "check": "re_keywords_1_6",
+  "ok": true,
+  "detail": "6 keywords"
+ },
+ {
+  "check": "re_highlights_3_5_le85",
+  "ok": true,
+  "detail": "5 bullets, max 72 chars"
+ },
+ {
+  "check": "re_wordcount_stated",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "check": "re_wordcount_guide_4000_6000",
+  "ok": true,
+  "detail": "3094 body words (guide range 4000\u20136000, advisory; below range is a flagged risk)"
+ },
+ {
+  "check": "re_bracket_citations",
+  "ok": true,
+  "detail": "numbered square-bracket citations, no superscript citation runs"
+ },
+ {
+  "check": "re_no_ecm_residue",
+  "ok": true,
+  "detail": ""
  },
  {
   "check": "werr_in_text",

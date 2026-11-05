@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Phase 11: build manuscript.docx (ECM 'Your Paper Your Way' single file).
+"""Phase 11: build manuscript.docx (Elsevier 'Your Paper Your Way' single file;
+current target: Renewable Energy — see docs/JOURNAL_TARGET_RENEWABLE_ENERGY.md).
 
 All numerical values are pulled from results/ and data/processed/ at build time
-(no hardcoded estimates). Citations: Vancouver numbering in order of first
-appearance, font-based superscript runs (not Unicode). Figures embedded inline;
+(no hardcoded estimates). Citations: numbers in square brackets in order of
+first appearance (Renewable Energy reference style). Figures embedded inline;
 the same PNGs are shipped separately plus an editable PPTX.
 """
 import pathlib
@@ -91,12 +92,27 @@ def eq(omml_body):
     p._p.append(parse_xml(math))
     return p
 
+def cite_label(nums):
+    nums = sorted(set(nums)); parts = []; i = 0
+    while i < len(nums):
+        j = i
+        while j + 1 < len(nums) and nums[j + 1] == nums[j] + 1:
+            j += 1
+        if j - i >= 2:
+            parts.append(f"{nums[i]}\u2013{nums[j]}")
+        else:
+            parts.extend(str(n) for n in nums[i:j + 1])
+        i = j + 1
+    return "[" + ",".join(parts) + "]"
+
 def add_cites(par, nums):
-    for i, n in enumerate(nums):
-        r = par.add_run(str(n))
-        r.font.superscript = True
-        if i < len(nums) - 1:
-            par.add_run(",")
+    trail = ""
+    if par.runs and par.runs[-1].text.endswith((",", ";")):
+        trail = par.runs[-1].text[-1]
+        par.runs[-1].text = par.runs[-1].text[:-1]
+    prev = par.text
+    lead = "" if (not prev or prev.endswith(" ")) else " "
+    par.add_run(lead + cite_label(nums) + trail)
 
 doc = Document()
 st = doc.styles["Normal"]; st.font.name = "Times New Roman"; st.font.size = Pt(11)
@@ -123,23 +139,23 @@ def fig(name, caption):
 
 # ================= TITLE =================
 t = doc.add_paragraph()
-r = t.add_run("Does large-scale wind-energy extraction feed back on European "
-              "heatwaves? A data-driven estimate of the meteorological "
-              "electricity rebound")
+r = t.add_run("Does wind power erode its own net energy benefit through "
+              "heatwave-season demand? Country-day accounting of a "
+              "meteorological electricity rebound for European wind energy")
 r.bold = True; r.font.size = Pt(14)
 
 doc.add_paragraph("Author: [Anonymized for single-anonymized review]")
-doc.add_paragraph("Target journal: Energy Conversion and Management "
-                  "(Full Length Article)")
+doc.add_paragraph("Article type: Research paper")
+wc_par = doc.add_paragraph("Word count: [computed at build]")
 
 # ================= ABSTRACT =================
 h("Abstract", 1)
 para(
     "Large-scale extraction of kinetic energy by wind turbines perturbs the "
     "atmospheric boundary layer and, plausibly, downstream moisture transport "
-    "and temperature. Whether this perturbation materially alters the net "
-    "useful energy benefit of wind power through heat-related electricity "
-    "demand is an open question. We introduce the Wind-induced Electricity "
+    "and temperature, yet wind-energy assessments treat delivered generation "
+    "as fully additional. Whether this perturbation erodes the net useful "
+    "energy of wind power through heat-related electricity demand is open. We introduce the Wind-induced Electricity "
     "Rebound Ratio (WERR = ΔE_heat / E_wind), the fraction of generated wind "
     "energy offset by additional cooling-season demand associated with the "
     "deployment footprint. Using 22 MJJAS seasons (2000–2021) of ERA5 "
@@ -154,7 +170,7 @@ para(
     "spatially heterogeneous (association-implied event-median ΔT of order "
     "1–2 °C on North-Sea corridors, ≈0 for France, negative elsewhere; "
     "per-MW coefficients ≈0.4–0.6×10⁻³ °C). Propagated through a marginal "
-    "demand-sensitivity model with propagated coefficient uncertainty, the "
+    "demand-sensitivity model with coefficient uncertainty, the "
     f"event-level mean WERR is {f(w9_all.werr_mean)} "
     f"[95% CI {f(w9_all.werr_lo)}, {f(w9_all.werr_hi)}] across "
     f"{int(w9_all.n_events):,} heatwave events; the energy-accounting "
@@ -167,6 +183,10 @@ para(
     "exposure is dense and generation small. Mesoscale WRF counterfactuals "
     "were designed but not executed; production configurations accompany "
     "the replication package.")
+
+h("Keywords", 1)
+para("Wind energy; Wind-farm wakes; Heatwaves; Electricity demand; "
+     "Reanalysis; Energy accounting")
 
 # ================= HIGHLIGHTS =================
 h("Highlights", 1)
@@ -202,7 +222,7 @@ para_cited(
     ["vautard2014", "millerkeith2018", "fiedler2021"],
     "; observed far-field wake signatures over the North Sea reach at least "
     "the farm-cluster scale.")
-para_cited(
+_p = para_cited(
     "Beyond local wakes, offshore deployments alter downwind meteorology and "
     "precipitation at cluster scale, and future build-out scenarios project "
     "non-negligible coastal effects",
@@ -211,8 +231,9 @@ para_cited(
     ". Wake-loss costs, continental-scale extraction limits and wake "
     "parameterization evaluation are covered by the energy and NWP "
     "literatures")
-para_cited("", ["lundquist2019", "wangprinn2010", "volker2017", "lee2022",
-                "fischereit2023"], ".")
+add_cites(_p, cite("lundquist2019", "wangprinn2010", "volker2017", "lee2022",
+                  "fischereit2023"))
+_p.add_run(".")
 para_cited(
     "A separate literature quantifies the electricity-system side: "
     "temperature-driven demand during heatwaves can peak substantially above "
@@ -249,6 +270,15 @@ para("Context. European installed wind capacity grew from ~13 GW in 2000 to "
      "stress and thermoelectric cooling constraints — are now central to "
      "resource-adequacy planning. Whether these two trends interact through "
      "the atmosphere itself is the question examined here.")
+para("Relevance for wind-energy assessment. Resource assessments, "
+     "capacity-expansion studies and net-benefit calculations for wind power "
+     "routinely treat delivered generation as fully additional. If a "
+     "measurable share of that generation were offset by atmosphere-mediated "
+     "demand, the bias would propagate into every metric that divides by "
+     "delivered energy, such as avoided emissions or system cost per unit of "
+     "useful energy. The question is therefore not only meteorological: it "
+     "decides whether wind-energy accounting needs a correction term and, if "
+     "so, how large it is and where it applies.")
 para("Contribution. (i) A harmonized, provenance-ledgered turbine register "
      "and upstream-capacity exposure field (WFI) constructed for every day of "
      "the record; (ii) a moisture-transport diagnostic suite (column "
@@ -636,6 +666,20 @@ para(f"Across 22 warm seasons of reanalysis, four complementary designs and "
      "energetic constraint on wind power; the estimated magnitude does not "
      "materially alter the net benefit of wind generation at the scale of "
      "current European deployment.")
+para("For wind-energy assessment, these data therefore support no aggregate "
+     "correction to delivered wind energy at current European deployment "
+     "levels. The localized positive values identify the corridors where "
+     "such a correction would be most worth testing as deployment densities "
+     "increase, and where the prespecified WRF suite would be most "
+     "informative.")
+
+# ================= WORD COUNT =================
+_ps = [q.text for q in doc.paragraphs]
+_wc = sum(len(x.split()) for x in _ps[_ps.index("1. Introduction"):])
+wc_par.text = (f"Word count: {_wc:,} (main text, Sections 1–5; excluding "
+               "abstract, tables, figure captions, declarations and references)")
+import json as _json
+(R / "manuscript_wordcount.json").write_text(_json.dumps({"main_text_words": _wc}))
 
 # ================= TABLES =================
 doc.add_page_break()
@@ -700,24 +744,13 @@ fig("fig8_werr", "Fig. 8. Signed WERR per country with 95% bootstrap CI; "
     "dashed = pooled event-mean estimate. The country-day ratio-of-sums "
     "estimand WERR_CD is reported in Table 4 and §3.7.")
 
-# ================= REFERENCES =================
-doc.add_page_break()
-h("References (Vancouver, order of appearance)", 1)
-for i, k in enumerate(order):
-    row = refs[refs.key == k].iloc[0]
-    doc.add_paragraph(f"[{i+1}] {row.title}. {row.journal} ({row.year}). "
-                      f"https://doi.org/{row.doi}", )
-
-doc.save(MS / "manuscript.docx")
-print("saved manuscript.docx |", len(order), "citations used |", len(refs), "refs in library")
-unused = [k for k in refs.key if k not in seen]
-print("uncited:", unused)
-
 # ================= DECLARATIONS =================
 doc.add_page_break()
 h("Declarations", 1)
 para("Funding: No external funding was received for this study.")
-para("Competing interests: The author declares no competing interests.")
+para("Declaration of competing interest: The author declares no competing "
+     "financial interests or personal relationships that could have appeared "
+     "to influence the work reported in this paper.")
 para("Data availability: ERA5 is publicly available via the ARCO-ERA5 cloud "
      "dataset on Google Cloud Storage. Turbine registers are public "
      "(Stamdataregisteret, Marktstammdatenregister, OpenStreetMap/ODbL, eww "
@@ -731,5 +764,34 @@ para("Code availability: all processing and analysis scripts, the WRF "
 para("CRediT authorship contribution statement: [single author — "
      "conceptualization, methodology, software, formal analysis, "
      "investigation, data curation, writing, visualization.]")
+para("Declaration of generative AI and AI-assisted technologies in the "
+     "manuscript preparation process: [Author to complete at submission "
+     "following the Elsevier policy.]")
+# ================= REFERENCES =================
+doc.add_page_break()
+h("References", 1)
+
+def ref_authors(a):
+    out = []
+    for n in str(a).split("; "):
+        fam, _, ini = n.rpartition(" ")
+        out.append(f"{ini} {fam}" if fam and ini.endswith(".") else n)
+    return ", ".join(out)
+
+def ref_entry(row):
+    vol = "" if pd.isna(row.volume) or row.volume == "" else f" {int(row.volume) if str(row.volume).isdigit() else row.volume}"
+    pg = "" if pd.isna(row.pages) or row.pages == "" else f" {str(row.pages).replace('-', '–')}"
+    return (f"{ref_authors(row.authors)}, {row.title}, {row.journal}{vol} "
+            f"({row.year}){pg}. https://doi.org/{row.doi}")
+
+for i, k in enumerate(order):
+    row = refs[refs.key == k].iloc[0]
+    doc.add_paragraph(f"[{i+1}] {ref_entry(row)}")
+
+doc.save(MS / "manuscript.docx")
+print("saved manuscript.docx |", len(order), "citations used |", len(refs), "refs in library")
+unused = [k for k in refs.key if k not in seen]
+print("uncited:", unused)
+
 doc.save(MS / "manuscript.docx")
 print("final save with declarations")

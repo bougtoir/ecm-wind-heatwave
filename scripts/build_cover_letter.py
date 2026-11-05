@@ -1,45 +1,65 @@
 #!/usr/bin/env python3
-"""Generate submission/cover_letter.md and submission/highlights.txt from
+"""Generate submission/cover_letter.md (Renewable Energy) and submission/highlights.txt from
 canonical results — no stale numbers. WERR estimands and headline claims
 come from results/ at build time.
 """
+import json
 import pathlib
 import pandas as pd
 
 R = pathlib.Path("results")
 w9 = pd.read_csv(R / "werr_pooled_summary.csv").iloc[0]
 cd = pd.read_csv(R / "country_day_werr_summary.csv").set_index("country").loc["ALL"]
+tb = len(pd.read_csv("data/processed/turbines.csv"))
+wc = json.load(open(R / "manuscript_wordcount.json"))["main_text_words"]
+refs = pd.read_csv("references/references_verified.csv")
 
-body = f"""# Cover letter — Energy Conversion and Management
+body = f"""# Cover letter — Renewable Energy
 
 Dear Editor,
 
-We submit "Does large-scale wind-energy extraction feed back on European
-heatwaves? A data-driven estimate of the meteorological electricity rebound"
-for consideration as a Full Length Article.
+Please consider the enclosed manuscript, "Does wind power erode its own net
+energy benefit through heatwave-season demand? Country-day accounting of a
+meteorological electricity rebound for European wind energy", for publication
+as a research paper in Renewable Energy.
 
-The study asks whether momentum extraction by Europe's wind fleet perturbs
-warm-season extreme temperature and the associated electricity demand enough
-to offset a detectable fraction of delivered wind energy — the WERR metric
-introduced here. Using 22 MJJAS seasons of ERA5, a 140k-turbine harmonized
-register, and four complementary observational designs with a falsification
-battery, we find a small, spatially heterogeneous effect. On the
-energy-accounting country-day estimand (ratio of summed implied demand to
-summed actual generation, each country's wind counted at most once per day)
-WERR_CD is {cd.werr_cd:.3f} [{cd.boot_lo:.3f},{cd.boot_hi:.3f}]; the legacy
-event-level mean is {w9.werr_mean:.3f} [{w9.werr_lo:.3f},{w9.werr_hi:.3f}].
-Neither shows a robust aggregate rebound, with localized positive values on
-dense North-Sea corridors and in Ireland.
+Wind-energy assessments usually count delivered generation as fully
+additional. Wind turbines are, however, momentum sinks that perturb the
+boundary layer downstream. The manuscript asks a question that matters for
+anyone who divides by delivered wind energy: does the atmospheric footprint
+of Europe's wind fleet raise warm-season extreme temperature, and therefore
+cooling-related electricity demand, enough to offset a measurable share of
+the energy it delivers?
 
-We believe ECM is the natural venue: the paper sits at the energy-system /
-atmospheric-science interface, proposes a reusable metric with a
-denominator-consistent estimand, and is honest about the sign and bounds of
-the effect. The replication package (data ledger, code, WRF counterfactual
-configurations for the prespecified counterfactual suite) accompanies the
-submission.
+To answer it we built (i) a harmonized, provenance-ledgered register of
+{tb:,} European turbines and a daily upstream-capacity exposure field; (ii) a
+ratio-of-sums rebound metric, WERR_CD, which counts each country's wind
+generation once per day so that the denominator is energetically consistent;
+and (iii) four complementary observational designs with a falsification and
+sensitivity battery, together with a prespecified mesoscale (WRF)
+counterfactual protocol whose configurations ship with the replication
+package. The production WRF suite was not executed, and the manuscript says
+so.
 
-The work is original, not under consideration elsewhere, and free of
-competing interests.
+The answer is a negative one for the aggregate: WERR_CD is {cd.werr_cd:.3f}
+[{cd.boot_lo:.3f},{cd.boot_hi:.3f}], statistically indistinguishable from
+zero, so these data support no aggregate correction to delivered wind energy
+at current European deployment. The event-level mean ({w9.werr_mean:.3f}
+[{w9.werr_lo:.3f},{w9.werr_hi:.3f}]) is reported as a secondary estimand, and
+the manuscript explains why the two differ. Localized positive values on
+dense North-Sea corridors show where any future correction would first be
+worth testing. All estimates are associations; none is presented as a causal
+effect.
+
+We believe the paper fits the journal's Wind Energy Technology and
+Climatology and Meteorology areas: it concerns the net energy delivered by
+renewable power generation, and it supplies a reusable accounting metric,
+open data provenance and code for wind-resource and system studies.
+
+The main text has {wc:,} words (Sections 1–5, excluding abstract, tables,
+figure captions, declarations and references) and {len(refs)} references.
+The manuscript is original, has not been published, and is not under
+consideration elsewhere. The author declares no competing interests.
 
 Sincerely,
 [Author]

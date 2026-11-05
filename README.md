@@ -1,4 +1,4 @@
-# European Wind Power → Moisture Transport → Heatwaves → Electricity Rebound (ECM)
+# European Wind Power → Moisture Transport → Heatwaves → Electricity Rebound
 
 Reproducible pipeline testing whether large-scale European wind-energy deployment
 generates atmospheric feedbacks (momentum extraction → moisture transport → soil
@@ -8,8 +8,11 @@ heat-related electricity demand, quantified as
 - WERR = ΔE_heat / E_wind  (Wind-induced meteorological Electricity Rebound Ratio)
 - E_net = E_wind − ΔE_heat
 
-Target journal: *Energy Conversion and Management* (Elsevier). See
-`docs/ECM_CURRENT_REQUIREMENTS.md`, `docs/NOVELTY_AUDIT.md`, `docs/ECM_FIT_AUDIT.md`.
+Current target journal: *Renewable Energy* (Elsevier) — see
+`docs/JOURNAL_TARGET_RENEWABLE_ENERGY.md` and `docs/JOURNAL_HISTORY.md`
+(previously submitted to *Energy Conversion and Management*: desk rejected,
+`docs/REJECTION_ECM.md`; the `ECM_*` zips and `docs/ECM_*` files are kept as the
+record of that submission).
 
 ## Reproduce
 
