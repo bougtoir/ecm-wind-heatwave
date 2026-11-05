@@ -62,7 +62,7 @@ def match(val):
             continue
         d = np.abs(canon_arr - target)
         tol = max(abs(target) * 5e-3, 5e-4) + 1e-12
-        i = d.argmin()
+        i = np.nanargmin(d)
         if d[i] <= tol:
             best = (canon[i][0], canon[i][1], scale, float(d[i]))
             break
@@ -74,7 +74,14 @@ NUM = re.compile(r"-?\d[\d,]*\.?\d*(?:[eE][+-]?\d+)?")
 rows = []
 
 
+CITE = re.compile(r"\[[1-9]\d*(?:[,\u2013][1-9]\d*)*\]")
+META = re.compile(r"^(Word count:|\[[1-9]\d*\] )")
+
+
 def harvest(text, artifact, location):
+    if META.match(text):
+        return  # manuscript metadata line / reference-list entry (bibliographic numbers)
+    text = CITE.sub(" ", text)
     for m in NUM.finditer(text):
         s = m.group(0)
         if len(s) <= 1 and s in "0123456789":

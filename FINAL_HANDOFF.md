@@ -1,3 +1,37 @@
+# FINAL HANDOFF — Renewable Energy retarget (2026-11-06)
+
+Venue: **Renewable Energy** (Elsevier). ECM desk rejected (letter not supplied; see docs/REJECTION_ECM.md).
+Branch: devin/*-retarget-renewable-energy → main (base 03e3c19, DOCUMENT_LOCK state).
+
+## Rules diff vs ECM
+See the table in docs/JOURNAL_TARGET_RENEWABLE_ENERGY.md. In short: `[n]` bracket citations
+(was superscript); full author/volume/page entries; mandatory word-count statement;
+≤50 references; advisory 4,000–6,000-word range (manuscript is 3,094 words: flagged risk);
+highlights/graphical-abstract rules unchanged.
+
+## Deliverables
+- RenewableEnergy_submission_DOCUMENT_LOCK.zip — manuscript.docx, cover_letter.docx/.md,
+  highlights.txt, graphical_abstract.pdf/.png, figures/Figure_1..8.png, figures_editable.pptx,
+  references_verified.csv, README.txt.
+- RenewableEnergy_reproducibility_DOCUMENT_LOCK.zip — tracked tree + data/processed.
+- Build: `build_manuscript.py → cp manuscript/manuscript.docx submission/ → build_cover_letter.py →
+  make_graphical_abstract.py → p12_qc.py → numeric_provenance.py → pytest → package_renewable_energy.py`.
+
+## Verification
+- p12_qc ALL PASS; pytest 13/13 (incl. document-integrity + new RE reference-style/front-matter tests).
+- Numeric provenance: 471 tokens, 0 unmatched (fixed NaN-argmin bug in numeric_provenance.py that
+  previously reported 561/642 false UNMATCHED; citations and reference-list entries now excluded).
+- Fresh clone of public main 03e3c19 + DOCUMENT_LOCK repro zip → p9b → country_day_werr_summary.csv
+  byte-identical (WERR_CD 0.000900817150901 [−0.0048474, +0.0097554], 2,362 country-days).
+  Same check from the new RenewableEnergy repro zip: byte-identical.
+- Reproduction scope: archived processed inputs; raw re-pull documented, not run.
+
+## Author actions
+Fill author/affiliation/ORCID in Editorial Manager, GenAI declaration, state the word count
+(3,094) in the submission form, upload figures as separate files.
+
+---
+
 # FINAL HANDOFF — ECM wind × heatwave package (2026-10-17, country-day gate)
 
 Branch: devin/hostile-audit → base: main (canonical HEAD before this pass: b746b8e).

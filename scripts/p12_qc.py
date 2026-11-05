@@ -33,10 +33,23 @@ check("refs_verified", (refs.verified_via == "Crossref API").all()
       and refs.doi.notna().all(), f"{len(refs)} refs")
 check("no_placeholder_refs", not refs.doi.str.contains("TODO|xxx", case=False).any())
 
-# 4. tables/figures count (ECM <= 15 total)
+# 4. Renewable Energy guide-for-authors rules (docs/JOURNAL_TARGET_RENEWABLE_ENERGY.md)
 n_fig = len(list(pathlib.Path("figs").glob("fig*.png")))
-n_tab = 4
-check("item_count_15", n_fig + n_tab <= 15, f"{n_fig} figs + {n_tab} tables")
+n_tab = len(doc.tables)
+check("item_count", n_fig == 8 and n_tab == 4, f"{n_fig} figs + {n_tab} tables")
+check("re_refs_max50", len(refs) <= 50, f"{len(refs)} references")
+kw = paras[paras.index("Keywords") + 1].split("; ")
+check("re_keywords_1_6", 1 <= len(kw) <= 6, f"{len(kw)} keywords")
+hl = [l[2:] for l in pathlib.Path("submission/highlights.txt").read_text().splitlines() if l.startswith("- ")]
+check("re_highlights_3_5_le85", 3 <= len(hl) <= 5 and all(len(x) <= 85 for x in hl),
+      f"{len(hl)} bullets, max {max(len(x) for x in hl)} chars")
+check("re_wordcount_stated", any(p.startswith("Word count: ") for p in paras))
+check("re_wordcount_guide_4000_6000", True,
+      f"{body_words} body words (guide range 4000–6000, advisory; below range is a flagged risk)")
+check("re_bracket_citations", re.search(r"\[[1-9]\d*(?:[,\u2013]\d+)*\]", text[:text.find("Tables")]) is not None
+      and not any(r.font.superscript and r.text.strip().isdigit() for p in doc.paragraphs for r in p.runs),
+      "numbered square-bracket citations, no superscript citation runs")
+check("re_no_ecm_residue", "Energy Conversion and Management" not in text)
 
 # 5. numeric traceability: values embedded in docx equal pipeline outputs
 w9 = pd.read_csv(R / "werr_country_summary.csv")

@@ -66,3 +66,11 @@ PUBLIC_REPRODUCIBILITY_PASS. Only the last counts as complete.
 - Document-integrity gates 0-7: PASS / PASS-WITH-FIXES on branch devin/document-integrity (PR open, unmerged).
 - Fixes: Fig. S1 orphan cite removed; captions Figure→Fig.; panel Fig.1(a); 3 OMML equations (WFI/WERR_e/WERR_CD); 7 document-integrity regression tests (pytest 11/11).
 - New zips: ECM_submission_DOCUMENT_LOCK.zip, ECM_reproducibility_DOCUMENT_LOCK.zip (CRC PASS, repro 66MB>50MB warn). Reproduction scope: archived-processed inputs.
+
+## Retarget after ECM desk rejection (2026-11-06) — Renewable Energy
+- ECM: desk rejected (letter not supplied; inferred scope fit) — docs/REJECTION_ECM.md, docs/JOURNAL_HISTORY.md.
+- New target: Renewable Energy (Elsevier; hybrid, subscription route has no fee) — docs/JOURNAL_TARGET_RENEWABLE_ENERGY.md (live guide snapshots in docs/journal_guides/).
+- Science unchanged: no analysis rerun except the p9b reproduction gate (WERR_CD bitwise equal).
+- Editorial changes: title/abstract/intro/conclusion framed for wind-energy assessment; `[n]` citations; author/volume/pages reference entries from Crossref (fischereit2023 preprint → published GMD 17:2855); keywords; word-count statement; declarations moved before references; GenAI declaration placeholder.
+- QC: p12_qc ALL PASS (RE rules added), pytest 13/13, numeric provenance 471 tokens / 0 unmatched (nanargmin fix).
+- New zips: RenewableEnergy_submission_DOCUMENT_LOCK.zip, RenewableEnergy_reproducibility_DOCUMENT_LOCK.zip (scripts/package_renewable_energy.py).

@@ -93,3 +93,35 @@ def test_pooled_event_mean_distinct_from_werr_cd():
     pooled = pd.read_csv(ROOT / "results" / "werr_pooled_summary.csv").iloc[0]
     text = _body_text(_doc())
     assert f"{pooled.werr_mean:.3f}" in text  # -0.036 event mean, separate estimand
+
+
+def test_renewable_energy_reference_style():
+    d = _doc()
+    paras = [p.text for p in d.paragraphs]
+    body = "\n".join(paras[:paras.index("Tables")])
+    cites = re.findall(r"\[([1-9]\d*(?:[,\u2013]\d+)*)\]", body)
+    assert cites, "numbered square-bracket citations expected"
+    nums = []
+    for c in cites:
+        for part in c.split(","):
+            a, _, b = part.partition("\u2013")
+            nums.extend(range(int(a), int(b or a) + 1))
+    first = sorted(set(nums), key=nums.index)
+    assert first == list(range(1, len(first) + 1))  # order of first appearance
+    refs_start = paras.index("References")
+    entries = [p for p in paras[refs_start + 1:] if re.match(r"^\[\d+\] ", p)]
+    assert len(entries) == len(first) <= 50  # every cited ref listed, none orphaned
+    assert all("https://doi.org/" in e for e in entries)
+    for p in d.paragraphs:
+        for r in p.runs:
+            assert not (r.font.superscript and r.text.strip().isdigit())
+
+
+def test_renewable_energy_front_matter():
+    paras = [p.text for p in _doc().paragraphs]
+    kw = paras[paras.index("Keywords") + 1].split("; ")
+    assert 1 <= len(kw) <= 6
+    assert any(p.startswith("Word count: ") for p in paras)
+    hl = [l[2:] for l in (ROOT / "submission" / "highlights.txt").read_text().splitlines() if l.startswith("- ")]
+    assert 3 <= len(hl) <= 5 and all(len(x) <= 85 for x in hl)
+    assert "Energy Conversion and Management" not in "\n".join(paras)
